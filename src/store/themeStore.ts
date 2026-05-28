@@ -11,7 +11,7 @@ interface ThemeStore {
 const KEY = 'feedplus-theme';
 
 export const useThemeStore = create<ThemeStore>((set) => ({
-  theme: ((typeof localStorage !== 'undefined' && localStorage.getItem(KEY)) as Theme) || 'dark',
+  theme: ((typeof localStorage !== 'undefined' && localStorage.getItem(KEY)) as Theme) || 'light',
   setTheme: (t) => {
     if (typeof localStorage !== 'undefined') localStorage.setItem(KEY, t);
     set({ theme: t });
