@@ -22,6 +22,7 @@ import FeedLogo from '@/components/ui/FeedLogo';
 import { useRallyStore } from '@/store/rallyStore';
 import { label } from '@/lib/i18n';
 import { useModeStore } from '@/store/modeStore';
+import { useThemeStore } from '@/store/themeStore';
 import Footer from '@/components/ui/Footer';
 
 const RALLY_GRAPHICS: GraphicType[] = ['crewLowerThird', 'stageLowerThird', 'interviewLowerThird', 'stageResults', 'overallStandings', 'headToHead', 'startList', 'stageMap', 'elevationProfile', 'weather', 'scorebug', 'sponsorCrawl', 'countdown', 'rallyIntro', 'stagePresentation', 'stageWeather'];
@@ -187,17 +188,28 @@ const Control = () => {
       ];
 
   const accent = settings.accentColor || '#FF6B00';
+  const { theme, toggleTheme } = useThemeStore();
+  const tc = theme === 'dark'
+    ? { bg: '#0F0F11', surface: '#1A1A1E', border: '#2A2A2E', muted: '#6A6A7A', text: '#E8E8F0' }
+    : { bg: '#F5F5F0', surface: '#FFFFFF', border: '#D4D4D4', muted: '#999999', text: '#1A1A1E' };
 
   useEffect(() => { document.title = 'Feed+ Motorsport — Control Panel  |  by Studio+'; }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: '#0F0F11' }}>
-      <header className="sticky top-0 z-50 border-b" style={{ background: '#1A1A1E', borderColor: '#2A2A2E' }}>
+    <div className="min-h-screen" style={{
+      background: tc.bg,
+      '--theme-bg': tc.bg,
+      '--theme-surface': tc.surface,
+      '--theme-border': tc.border,
+      '--theme-muted': tc.muted,
+      '--theme-text': tc.text,
+    } as React.CSSProperties}>
+      <header className="sticky top-0 z-50 border-b" style={{ background: tc.surface, borderColor: tc.border }}>
         <div className="px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-5">
-            <FeedLogo variant="light" size="sm" />
+            <FeedLogo variant={theme === 'dark' ? 'light' : 'dark'} size="sm" />
 
-            <div className="flex rounded-sm overflow-hidden border" style={{ borderColor: '#2A2A2E' }}>
+            <div className="flex rounded-sm overflow-hidden border" style={{ borderColor: tc.border }}>
               {(['rally', 'circuit'] as const).map(m => (
                 <button
                   key={m}
@@ -205,7 +217,7 @@ const Control = () => {
                   className="px-3.5 py-1.5 text-[11px] font-semibold tracking-wider uppercase transition-all"
                   style={{
                     background: mode === m ? accent : 'transparent',
-                    color: mode === m ? '#000' : '#6A6A7A',
+                    color: mode === m ? '#000' : tc.muted,
                   }}
                 >
                   {m === 'rally' ? 'Rally' : 'Circuito'}
@@ -213,15 +225,33 @@ const Control = () => {
               ))}
             </div>
 
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm border" style={{ borderColor: '#2A2A2E' }}>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm border" style={{ borderColor: tc.border }}>
               <CheckIcon />
-              <span className="text-[10px] font-mono font-medium" style={{ color: '#6A6A7A' }}>{room}</span>
+              <span className="text-[10px] font-mono font-medium" style={{ color: tc.muted }}>{room}</span>
             </div>
+
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center w-8 h-8 rounded-sm border transition-all"
+              style={{ borderColor: tc.border, color: tc.muted }}
+              title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            >
+              {theme === 'dark' ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5" />
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              )}
+            </button>
           </div>
 
           <div className="flex items-center gap-2">
             {liveGraphics.size > 0 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm" style={{ background: '#FF6B0018' }}>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm" style={{ background: `${accent}18` }}>
                 <span className="w-1.5 h-1.5 rounded-full animate-pulse-live" style={{ background: accent }} />
                 <span className="text-[10px] font-semibold tracking-wider" style={{ color: accent }}>
                   {liveGraphics.size} ON AIR
@@ -232,12 +262,9 @@ const Control = () => {
             <button
               onClick={copyOutputUrl}
               className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-sm border transition-all"
-              style={{
-                borderColor: '#2A2A2E',
-                color: '#6A6A7A',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = '#E8E8F0'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A2E'; e.currentTarget.style.color = '#6A6A7A'; }}
+              style={{ borderColor: tc.border, color: tc.muted }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = tc.text; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = tc.border; e.currentTarget.style.color = tc.muted; }}
             >
               <CopyIcon />
               <span className="hidden sm:inline">{label('Copy URL', settings.language, settings.customLabels)}</span>
@@ -246,12 +273,9 @@ const Control = () => {
             <button
               onClick={openOutput}
               className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium rounded-sm border transition-all"
-              style={{
-                borderColor: '#2A2A2E',
-                color: '#6A6A7A',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = '#E8E8F0'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A2E'; e.currentTarget.style.color = '#6A6A7A'; }}
+              style={{ borderColor: tc.border, color: tc.muted }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.color = tc.text; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = tc.border; e.currentTarget.style.color = tc.muted; }}
             >
               <ExternalIcon />
               <span className="hidden sm:inline">Output</span>
@@ -261,10 +285,7 @@ const Control = () => {
               <button
                 onClick={clearAll}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-sm transition-all"
-                style={{
-                  background: '#9F2F2D',
-                  color: 'white',
-                }}
+                style={{ background: '#9F2F2D', color: 'white' }}
               >
                 <CrossIcon />
                 {label('Clear All', settings.language, settings.customLabels)}
@@ -276,18 +297,18 @@ const Control = () => {
 
       <main className="px-6 py-4">
         <Tabs defaultValue={mode === 'rally' ? 'import' : 'entries'} className="w-full" key={mode}>
-          <TabsList
-            className="flex gap-0 h-auto p-0 w-full justify-start rounded-sm overflow-hidden"
-            style={{ background: '#1A1A1E', border: '1px solid #2A2A2E' }}
-          >
-            {activeTabs.map(t => (
-              <TabsTrigger
-                key={t.value}
-                value={t.value}
-                className="relative flex-1 px-3 py-2.5 text-[11px] font-medium tracking-wider uppercase rounded-none bg-transparent data-[state=active]:shadow-none transition-all"
-                style={{
-                  borderRight: '1px solid #2A2A2E',
-                }}
+            <TabsList
+              className="flex gap-0 h-auto p-0 w-full justify-start rounded-sm overflow-hidden"
+              style={{ background: tc.surface, border: `1px solid ${tc.border}` }}
+            >
+              {activeTabs.map(t => (
+                <TabsTrigger
+                  key={t.value}
+                  value={t.value}
+                  className="relative flex-1 px-3 py-2.5 text-[11px] font-medium tracking-wider uppercase rounded-none bg-transparent data-[state=active]:shadow-none transition-all"
+                  style={{
+                    borderRight: `1px solid ${tc.border}`,
+                  }}
               >
                 <span
                   className="absolute inset-x-0 top-0 h-0.5 transition-opacity"
@@ -305,6 +326,7 @@ const Control = () => {
           <style>{`
             [data-state="active"] [data-active-indicator] { opacity: 1 !important; }
             [data-state="active"] { background: ${accent}12 !important; color: ${accent} !important; font-weight: 600 !important; }
+            button[role="tab"]:not([data-state="active"]) { color: ${tc.muted} !important; }
           `}</style>
 
           <TabsContent value="import"><ImportTab /></TabsContent>
