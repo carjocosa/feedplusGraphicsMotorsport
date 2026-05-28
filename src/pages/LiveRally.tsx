@@ -90,6 +90,7 @@ const positionMap = (rows: TimingEntry[]) => {
 };
 
 const LiveRally = () => {
+  useEffect(() => { document.title = 'Feed+ Motorsport — Live Timing'; }, []);
   const [searchParams] = useSearchParams();
 
   const presets: Preset[] = useMemo(() => {

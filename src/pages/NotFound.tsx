@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Footer from '@/components/ui/Footer';
 
 const NotFound = () => {
+  useEffect(() => { document.title = '404 — Feed+ Motorsport'; }, []);
   const location = useLocation();
 
   return (

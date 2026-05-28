@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EventInfoTab from '@/components/control/EventInfoTab';
@@ -13,6 +14,7 @@ const noop = () => {};
 const empty = new Set<string>();
 
 const Admin = () => {
+  useEffect(() => { document.title = 'Feed+ Motorsport — Admin'; }, []);
   return (
     <div className="min-h-screen" style={{ background: '#0F0F11' }}>
       <header className="sticky top-0 z-50 border-b" style={{ background: '#1A1A1E', borderColor: '#2A2A2E' }}>

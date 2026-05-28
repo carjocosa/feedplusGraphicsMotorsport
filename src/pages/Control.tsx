@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBroadcastSender } from '@/hooks/useBroadcast';
 import { useToast } from '@/hooks/use-toast';
@@ -187,6 +187,8 @@ const Control = () => {
       ];
 
   const accent = settings.accentColor || '#FF6B00';
+
+  useEffect(() => { document.title = 'Feed+ Motorsport — Control Panel'; }, []);
 
   return (
     <div className="min-h-screen" style={{ background: '#0F0F11' }}>
