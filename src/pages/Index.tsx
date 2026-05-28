@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import FeedLogo from '@/components/ui/FeedLogo';
 
 const Index = () => {
-  useEffect(() => { document.title = 'Feed+ Motorsport — Broadcast Graphics'; }, []);
+  useEffect(() => { document.title = 'Feed+ Motorsport — Broadcast Graphics  |  by Studio+'; }, []);
   const openOutput = () => {
     window.open('/output', 'feed-output', 'width=1920,height=1080');
   };

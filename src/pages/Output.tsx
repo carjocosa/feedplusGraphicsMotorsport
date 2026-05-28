@@ -96,7 +96,7 @@ const Output = () => {
     };
     updateScale();
     window.addEventListener('resize', updateScale);
-    document.title = 'Feed+ Motorsport — Output';
+    document.title = 'Feed+ Motorsport — Output  |  by Studio+';
     document.body.style.background = 'transparent';
     return () => window.removeEventListener('resize', updateScale);
   }, []);

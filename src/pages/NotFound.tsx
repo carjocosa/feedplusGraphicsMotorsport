@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import Footer from '@/components/ui/Footer';
 
 const NotFound = () => {
-  useEffect(() => { document.title = '404 — Feed+ Motorsport'; }, []);
+  useEffect(() => { document.title = '404 — Feed+ Motorsport  |  by Studio+'; }, []);
   const location = useLocation();
 
   return (

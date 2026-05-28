@@ -14,7 +14,7 @@ const noop = () => {};
 const empty = new Set<string>();
 
 const Admin = () => {
-  useEffect(() => { document.title = 'Feed+ Motorsport — Admin'; }, []);
+  useEffect(() => { document.title = 'Feed+ Motorsport — Admin  |  by Studio+'; }, []);
   return (
     <div className="min-h-screen" style={{ background: '#0F0F11' }}>
       <header className="sticky top-0 z-50 border-b" style={{ background: '#1A1A1E', borderColor: '#2A2A2E' }}>

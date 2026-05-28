@@ -188,7 +188,7 @@ const Control = () => {
 
   const accent = settings.accentColor || '#FF6B00';
 
-  useEffect(() => { document.title = 'Feed+ Motorsport — Control Panel'; }, []);
+  useEffect(() => { document.title = 'Feed+ Motorsport — Control Panel  |  by Studio+'; }, []);
 
   return (
     <div className="min-h-screen" style={{ background: '#0F0F11' }}>
