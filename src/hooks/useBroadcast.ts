@@ -3,8 +3,6 @@ import { BroadcastMessage } from '@/types/rally';
 import { supabase } from '@/integrations/supabase/client';
 
 const CHANNEL_NAME = 'rallystream-pro';
-
-// Unique sender ID per tab to avoid echo loops with Supabase Realtime.
 const SENDER_ID = Math.random().toString(36).slice(2, 10);
 
 function realtimeChannelName(room: string | null) {
@@ -13,7 +11,7 @@ function realtimeChannelName(room: string | null) {
 
 export function useBroadcastSender(room?: string | null) {
   const channelRef = useRef<BroadcastChannel | null>(null);
-  const rtRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const rtRef = useRef<any>(null);
 
   useEffect(() => {
     channelRef.current = new BroadcastChannel(CHANNEL_NAME);
@@ -21,6 +19,7 @@ export function useBroadcastSender(room?: string | null) {
   }, []);
 
   useEffect(() => {
+    if (!supabase) return;
     const name = realtimeChannelName(room ?? null);
     if (!name) return;
     const ch = supabase.channel(name, { config: { broadcast: { self: false } } });
@@ -60,6 +59,7 @@ export function useBroadcastReceiver(
   }, []);
 
   useEffect(() => {
+    if (!supabase) return;
     const name = realtimeChannelName(room ?? null);
     if (!name) return;
     const ch = supabase
