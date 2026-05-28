@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Feed+ Motorsport — Brand Direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background:var(--bg-absolute);color:var(--gray-3);font-family:var(--font-body);line-height:1.5;overflow-x:hidden}
+
+:root{
+  --bg-absolute:#000000;
+  --bg-primary:#0F0F11;
+  --bg-secondary:#1A1A1E;
+  --accent:#FF6B00;
+  --accent-soft:rgba(255,107,0,.14);
+  --accent-line:rgba(255,107,0,.9);
+  --gray-1:#8A8A9A;
+  --gray-2:#B0B0C0;
+  --gray-3:#E8E8F0;
+  --white:#FFFFFF;
+  --border-subtle:rgba(232,232,240,.14);
+  --border-mid:rgba(232,232,240,.26);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;
+  --space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;--space-16:64px;
+  --radius-0:0px;--radius-1:2px;
+  --font-display:'Barlow Condensed','Rajdhani','Oswald',sans-serif;
+  --font-body:'Inter','Manrope','SF Pro Display',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono','Roboto Mono','SFMono-Regular',monospace;
+  --text-xs:12px;--text-sm:14px;--text-md:16px;--text-lg:20px;--text-xl:32px;--text-2xl:56px;
+  --track-wide:.18em;--track-ui:.08em;
+  --grid-width:1440px;--panel-pad:18px;--line-1:1px;--line-2:2px
+}
+
+.grid{display:grid;gap:var(--space-6)}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+
+.panel{background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle);border-radius:var(--radius-0)}
+.panel-accent{border-top:var(--line-2) solid var(--accent)}
+.panel-label{font-family:var(--font-display);font-size:var(--text-xs);letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase;margin-bottom:var(--space-2)}
+.label{font-family:var(--font-display);font-size:var(--text-xs);letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+.label-accent{color:var(--accent)}
+.data{font-family:var(--font-body);font-size:var(--text-md);color:var(--white);font-weight:500;font-variant-numeric:tabular-nums}
+.data-lg{font-family:var(--font-display);font-size:var(--text-xl);font-weight:700;color:var(--white);letter-spacing:var(--track-ui);font-variant-numeric:tabular-nums;line-height:1.1}
+.data-mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:var(--text-md);color:var(--white);font-weight:500}
+.accent-line{width:100%;height:var(--line-2);background:var(--accent-line);border:none}
+.accent-line-thin{width:100%;height:var(--line-1);background:var(--accent-line);border:none}
+
+.timing-stripe{width:var(--line-2);height:100%;min-height:40px;background:var(--accent-line);flex-shrink:0}
+.live-dot{width:6px;height:6px;border-radius:0;background:var(--accent);flex-shrink:0}
+.border-accent-top{border-top:var(--line-2) solid var(--accent)}
+.border-subtle-top{border-top:var(--line-1) solid var(--border-subtle)}
+.border-subtle-bottom{border-bottom:var(--line-1) solid var(--border-subtle)}
+
+.px{padding-left:var(--space-8);padding-right:var(--space-8)}
+.py{padding-top:var(--space-8);padding-bottom:var(--space-8)}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:var(--bg-absolute);border-bottom:var(--line-1) solid var(--border-subtle)}
+.header-inner{max-width:var(--grid-width);margin:0 auto;padding:var(--space-4) var(--space-8);display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:var(--space-3)}
+.logo-feed{font-family:var(--font-display);font-size:22px;font-weight:800;letter-spacing:var(--track-wide);color:var(--white);line-height:1}
+.logo-plus{font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--accent);line-height:1;margin-left:-1px}
+.logo-divider{width:var(--line-1);height:16px;background:var(--border-mid)}
+.logo-by{font-family:var(--font-body);font-size:10px;letter-spacing:var(--track-ui);color:var(--gray-1);text-transform:uppercase}
+.logo-studio{font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--gray-3)}
+.tagline{font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+.nav{display:flex;gap:var(--space-6)}
+.nav a{font-family:var(--font-display);font-size:11px;letter-spacing:var(--track-wide);color:var(--gray-2);text-transform:uppercase;text-decoration:none;transition:color .15s}
+.nav a:hover{color:var(--accent)}
+
+/* SECTIONS */
+.section{max-width:var(--grid-width);margin:0 auto;padding:var(--space-16) var(--space-8)}
+.section-title{font-family:var(--font-display);font-size:var(--text-xl);font-weight:700;letter-spacing:var(--track-wide);color:var(--white);text-transform:uppercase;margin-bottom:var(--space-2)}
+.section-sub{font-family:var(--font-display);font-size:var(--text-sm);letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+.section-line{width:48px;height:var(--line-2);background:var(--accent-line);margin:var(--space-4) 0 var(--space-8) 0}
+
+/* HERO */
+.hero{max-width:var(--grid-width);margin:0 auto;padding:var(--space-16) var(--space-8) var(--space-12);display:grid;grid-template-columns:3fr 2fr;gap:var(--space-10);align-items:start;min-height:70vh}
+.hero-eyebrow{font-family:var(--font-display);font-size:var(--text-xs);letter-spacing:var(--track-wide);color:var(--accent);text-transform:uppercase;margin-bottom:var(--space-4)}
+.hero-headline{font-family:var(--font-display);font-size:72px;font-weight:900;letter-spacing:var(--track-wide);color:var(--white);text-transform:uppercase;line-height:.92;margin-bottom:var(--space-6)}
+.hero-plus{color:var(--accent)}
+.hero-desc{font-family:var(--font-body);font-size:var(--text-sm);color:var(--gray-2);max-width:480px;line-height:1.7;margin-bottom:var(--space-8)}
+.hero-actions{display:flex;gap:var(--space-4);align-items:center}
+.btn{font-family:var(--font-display);font-size:11px;letter-spacing:var(--track-wide);text-transform:uppercase;padding:var(--space-3) var(--space-6);border:var(--line-1) solid;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:var(--space-2)}
+.btn-primary{background:var(--accent);color:var(--bg-absolute);border-color:var(--accent);font-weight:700}
+.btn-primary:hover{background:transparent;color:var(--accent)}
+.btn-ghost{background:transparent;color:var(--gray-2);border-color:var(--border-mid)}
+.btn-ghost:hover{color:var(--white);border-color:var(--white)}
+.hero-panel{background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle);padding:var(--space-6);display:flex;flex-direction:column;gap:var(--space-4)}
+.hero-panel-header{display:flex;align-items:center;gap:var(--space-3);padding-bottom:var(--space-3);border-bottom:var(--line-1) solid var(--border-subtle)}
+.hero-panel-data{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+.hero-panel-item{display:flex;flex-direction:column;gap:var(--space-1)}
+.hero-panel-line{height:var(--line-1);background:var(--border-subtle);margin:var(--space-1) 0}
+.live-indicator{display:flex;align-items:center;gap:var(--space-2)}
+.live-indicator .live-dot{animation:pulse-dot 1.5s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* BRAND BLOCK */
+.brand-block{display:flex;flex-direction:column;gap:var(--space-6)}
+.brand-logos{display:flex;gap:var(--space-10);align-items:center;flex-wrap:wrap}
+.brand-logo-card{background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle);padding:var(--space-6) var(--space-8);display:flex;flex-direction:column;align-items:center;gap:var(--space-3);min-width:200px}
+.brand-logo-card .logo-feed{font-size:32px}
+.brand-logo-card .logo-plus{font-size:34px}
+.brand-logo-card .sub{font-family:var(--font-display);font-size:9px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+.brand-symbol-card{background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle);width:100px;height:100px;display:flex;align-items:center;justify-content:center}
+.symbol-plus{font-family:var(--font-display);font-size:48px;font-weight:900;color:var(--accent);line-height:1;position:relative}
+.symbol-plus::before,.symbol-plus::after{content:'';position:absolute;background:var(--accent)}
+.crosshair{width:80px;height:80px;position:relative;display:flex;align-items:center;justify-content:center}
+.crosshair-ring{width:48px;height:48px;border:var(--line-1) solid var(--accent);position:absolute}
+.crosshair-h{width:32px;height:var(--line-1);background:var(--accent);position:absolute}
+.crosshair-v{width:var(--line-1);height:32px;background:var(--accent);position:absolute}
+.crosshair-dot{width:4px;height:4px;background:var(--accent);position:absolute}
+
+/* OVERLAY SAMPLES */
+.overlay-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6)}
+.overlay-sample{background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle)}
+.overlay-sample-header{display:flex;align-items:center;justify-content:space-between;padding:var(--space-3) var(--space-4);border-bottom:var(--line-1) solid var(--border-subtle)}
+.overlay-sample-name{font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+.overlay-sample-body{padding:var(--space-5) var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)}
+
+/* lower third */
+.lower-third{display:flex;gap:var(--space-3);align-items:stretch}
+.lower-third-stripe{width:var(--line-2);background:var(--accent-line);flex-shrink:0}
+.lower-third-content{display:flex;flex-direction:column;gap:var(--space-1)}
+.lower-third-name{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--white);letter-spacing:var(--track-ui);text-transform:uppercase;line-height:1.1}
+.lower-third-meta{font-family:var(--font-display);font-size:11px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+
+/* timing bar */
+.timing-bar{display:flex;flex-direction:column;gap:var(--space-2)}
+.timing-row{display:grid;grid-template-columns:40px 1fr 80px 80px 60px;gap:var(--space-3);padding:var(--space-2) var(--space-3);background:var(--bg-secondary);align-items:center}
+.timing-row-accent{border-left:var(--line-2) solid var(--accent);background:var(--accent-soft)}
+.timing-pos{font-family:var(--font-display);font-size:var(--text-sm);font-weight:700;color:var(--gray-1);text-align:right}
+.timing-name{font-family:var(--font-display);font-size:var(--text-sm);font-weight:600;color:var(--white);letter-spacing:var(--track-ui);text-transform:uppercase}
+.timing-time{font-family:var(--font-mono);font-size:var(--text-sm);color:var(--white);font-variant-numeric:tabular-nums;text-align:right}
+.timing-gap{font-family:var(--font-mono);font-size:var(--text-sm);color:var(--accent);font-variant-numeric:tabular-nums;text-align:right}
+.timing-status{font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase;text-align:center}
+
+/* driver card */
+.driver-card{display:flex;gap:var(--space-3);padding:var(--space-3);background:var(--bg-secondary);border-left:var(--line-2) solid var(--accent)}
+.driver-number{font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--accent);line-height:1;min-width:40px}
+.driver-info{display:flex;flex-direction:column;gap:var(--space-1)}
+.driver-name{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);letter-spacing:var(--track-ui);text-transform:uppercase}
+.driver-meta{font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+.driver-stats{display:flex;gap:var(--space-4);margin-top:var(--space-1)}
+.driver-stat{display:flex;flex-direction:column;gap:1px}
+.driver-stat-value{font-family:var(--font-mono);font-size:var(--text-sm);color:var(--white);font-variant-numeric:tabular-nums}
+.driver-stat-label{font-family:var(--font-display);font-size:8px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+
+/* session status */
+.session-status{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-3);background:var(--bg-secondary)}
+.session-status-bar{width:var(--line-2);height:24px;background:var(--accent-line)}
+.session-status-text{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--white);letter-spacing:var(--track-wide);text-transform:uppercase}
+
+/* COLOR SWATCHES */
+.swatch-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--space-4)}
+.swatch{display:flex;flex-direction:column;gap:var(--space-2)}
+.swatch-color{height:64px;border:var(--line-1) solid var(--border-subtle)}
+.swatch-name{font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase}
+.swatch-hex{font-family:var(--font-mono);font-size:10px;color:var(--gray-2)}
+
+/* TYPOGRAPHY */
+.type-sample{margin-bottom:var(--space-6)}
+.type-sample-label{font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase;margin-bottom:var(--space-2)}
+.type-display{font-family:var(--font-display);color:var(--white)}
+.type-body{font-family:var(--font-body);color:var(--gray-2);font-size:var(--text-sm)}
+.type-weights{display:flex;gap:var(--space-6);flex-wrap:wrap}
+.type-weight{display:flex;flex-direction:column;gap:var(--space-1)}
+
+/* GRID SYSTEM */
+.grid-vis{display:flex;gap:var(--space-4);margin-top:var(--space-4);flex-wrap:wrap}
+.grid-col{flex:1;background:var(--border-subtle);height:8px;min-width:40px}
+
+/* MOCKUP */
+.mockup-section{position:relative;overflow:hidden}
+.mockup-frame{background:var(--bg-secondary);border:var(--line-1) solid var(--border-subtle);position:relative;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.mockup-grid-lines{position:absolute;inset:0;opacity:.06}
+.mockup-grid-lines::before{content:'';position:absolute;inset:0;background-image:linear-gradient(to right,var(--white) 1px,transparent 1px),linear-gradient(to bottom,var(--white) 1px,transparent 1px);background-size:64px 64px}
+.mockup-content{position:relative;width:90%;height:85%;display:flex;flex-direction:column;justify-content:space-between}
+.mockup-top-bar{display:flex;justify-content:space-between;align-items:flex-start}
+.mockup-bottom-bar{display:flex;justify-content:space-between;align-items:flex-end}
+.mockup-lower-third{position:absolute;bottom:0;left:0;width:50%;background:linear-gradient(90deg,var(--bg-primary) 0%,transparent 100%);padding:var(--space-4)}
+.mockup-timing{position:absolute;top:0;right:0;width:35%;background:var(--bg-primary);padding:var(--space-3);border-left:var(--line-1) solid var(--border-subtle)}
+.mockup-driver{position:absolute;top:50%;left:var(--space-6);transform:translateY(-50%);width:200px}
+.mockup-overlay-label{font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase;background:var(--bg-absolute);padding:var(--space-1) var(--space-2);border:var(--line-1) solid var(--border-subtle);white-space:nowrap}
+
+/* PRINCIPLES */
+.principles-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-6)}
+.principle-card{background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle);padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-3);border-top:var(--line-2) solid var(--accent)}
+.principle-number{font-family:var(--font-display);font-size:var(--text-2xl);font-weight:900;color:var(--accent);line-height:1;opacity:0.3}
+.principle-title{font-family:var(--font-display);font-size:var(--text-md);font-weight:700;color:var(--white);letter-spacing:var(--track-wide);text-transform:uppercase}
+.principle-desc{font-family:var(--font-body);font-size:var(--text-xs);color:var(--gray-2);line-height:1.6}
+
+/* INFORMATION PANEL */
+.info-panel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);padding:var(--space-4);background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle)}
+.info-panel-block{display:flex;flex-direction:column;gap:var(--space-1)}
+
+/* FOOTER */
+.footer{max-width:var(--grid-width);margin:0 auto;padding:var(--space-8) var(--space-8) var(--space-6);border-top:var(--line-1) solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center}
+.footer-legal{font-family:var(--font-body);font-size:10px;color:var(--gray-1)}
+.footer-studio{font-family:var(--font-display);font-size:11px;letter-spacing:var(--track-wide);color:var(--gray-2);text-transform:uppercase}
+
+/* TAG */
+.tag{font-family:var(--font-display);font-size:9px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase;padding:var(--space-1) var(--space-2);border:var(--line-1) solid var(--border-subtle);display:inline-block}
+
+/* SCROLLBEHAVIOR */
+html{scroll-behavior:smooth}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .hero{grid-template-columns:1fr;padding-top:var(--space-10);min-height:auto}
+  .hero-headline{font-size:48px}
+  .principles-grid{grid-template-columns:1fr 1fr}
+  .swatch-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:768px){
+  .hero-headline{font-size:32px}
+  .overlay-grid{grid-template-columns:1fr}
+  .principles-grid{grid-template-columns:1fr}
+  .swatch-grid{grid-template-columns:repeat(2,1fr)}
+  .brand-logos{flex-direction:column;align-items:flex-start}
+  .hero-panel-data{grid-template-columns:1fr}
+  .info-panel{grid-template-columns:1fr}
+  .nav{display:none}
+  .timing-row{grid-template-columns:30px 1fr 60px 60px 50px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-feed">FEED<span class="logo-plus">+</span></span>
+      <span class="logo-divider"></span>
+      <div>
+        <div class="logo-by">by</div>
+        <span class="logo-studio">STUDIO+</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="#identity">Identity</a>
+      <a href="#system">System</a>
+      <a href="#overlays">Overlays</a>
+      <a href="#principles">Principles</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-eyebrow">Live Graphics System</div>
+    <h1 class="hero-headline">Feed<span class="hero-plus">+</span><br>Motorsport</h1>
+    <p class="hero-desc">
+      Broadcast-grade real-time CG overlays for rally, circuit, karting and track.
+      Precision tools built for producers, not spectators.
+    </p>
+    <div class="hero-actions">
+      <a href="#system" class="btn btn-primary">Explore system</a>
+      <a href="#overlays" class="btn btn-ghost">View overlays</a>
+    </div>
+  </div>
+  <div class="hero-panel">
+    <div class="hero-panel-header">
+      <div class="live-indicator"><span class="live-dot"></span><span class="label">Live</span></div>
+      <span class="tag">Session S-01</span>
+      <span style="margin-left:auto;font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase">SS·1</span>
+    </div>
+    <div class="hero-panel-data">
+      <div class="hero-panel-item">
+        <span class="label">Driver</span>
+        <span class="data-lg" style="font-size:18px">C. Sainz</span>
+      </div>
+      <div class="hero-panel-item">
+        <span class="label">Time</span>
+        <span class="data-lg" style="font-size:18px">12:34.567</span>
+      </div>
+      <div class="hero-panel-item">
+        <span class="label">Gap</span>
+        <span class="data-lg" style="font-size:18px;color:var(--accent)">+1.234</span>
+      </div>
+      <div class="hero-panel-item">
+        <span class="label">Pos</span>
+        <span class="data-lg" style="font-size:18px;color:var(--accent)">2nd</span>
+      </div>
+    </div>
+    <div class="hero-panel-line"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
+      <div>
+        <span class="label">Car</span>
+        <span class="data" style="font-size:var(--text-sm)">#306 — Toyota GR Yaris</span>
+      </div>
+      <div>
+        <span class="label">Surface</span>
+        <span class="data" style="font-size:var(--text-sm)">Gravel</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BRAND IDENTITY -->
+<section id="identity" class="section">
+  <span class="section-sub">01 — Brand</span>
+  <h2 class="section-title">Identity</h2>
+  <div class="section-line"></div>
+
+  <div class="brand-block">
+    <div class="brand-logos">
+      <div class="brand-logo-card">
+        <div><span class="logo-feed" style="font-size:32px">FEED<span class="logo-plus" style="font-size:34px">+</span></span></div>
+        <span class="sub">Horizontal lockup</span>
+      </div>
+      <div class="brand-symbol-card">
+        <div class="crosshair">
+          <div class="crosshair-ring"></div>
+          <div class="crosshair-h"></div>
+          <div class="crosshair-v"></div>
+          <div class="crosshair-dot"></div>
+        </div>
+      </div>
+      <div class="brand-symbol-card" style="width:100px;height:100px">
+        <span class="symbol-plus">+</span>
+      </div>
+    </div>
+    <p style="font-family:var(--font-body);font-size:var(--text-xs);color:var(--gray-2);max-width:600px;line-height:1.7">
+      The <strong style="color:var(--white)">+</strong> represents precision calibration — the intersection of axes,
+      a targeting reticle, a registration mark. It is not a medical cross nor a mathematical operator.
+      It is the point where signal meets accuracy.
+    </p>
+  </div>
+</section>
+
+<!-- DESIGN SYSTEM -->
+<section id="system" class="section">
+  <span class="section-sub">02 — System</span>
+  <h2 class="section-title">Visual Language</h2>
+  <div class="section-line"></div>
+
+  <!-- Color -->
+  <div style="margin-bottom:var(--space-10)">
+    <span class="panel-label" style="margin-bottom:var(--space-4)">Color</span>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#000000"></div>
+        <span class="swatch-name">Absolute</span>
+        <span class="swatch-hex">#000000</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#0F0F11"></div>
+        <span class="swatch-name">Primary</span>
+        <span class="swatch-hex">#0F0F11</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1A1A1E"></div>
+        <span class="swatch-name">Secondary</span>
+        <span class="swatch-hex">#1A1A1E</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#FF6B00"></div>
+        <span class="swatch-name">Accent</span>
+        <span class="swatch-hex">#FF6B00</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#8A8A9A"></div>
+        <span class="swatch-name">Gray 1</span>
+        <span class="swatch-hex">#8A8A9A</span>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#E8E8F0"></div>
+        <span class="swatch-name">Gray 3</span>
+        <span class="swatch-hex">#E8E8F0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Typography -->
+  <div style="margin-bottom:var(--space-10)">
+    <span class="panel-label" style="margin-bottom:var(--space-4)">Typography</span>
+    <div class="type-sample">
+      <span class="type-sample-label">Display — Barlow Condensed</span>
+      <div class="type-weights">
+        <div class="type-weight"><span style="font-family:var(--font-display);font-weight:600;font-size:18px;letter-spacing:var(--track-wide);color:var(--white)">600 Bold</span><span style="font-family:var(--font-mono);font-size:9px;color:var(--gray-1)">Titles / Headlines</span></div>
+        <div class="type-weight"><span style="font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:var(--track-wide);color:var(--white)">700 Heavy</span><span style="font-family:var(--font-mono);font-size:9px;color:var(--gray-1)">Section headers</span></div>
+        <div class="type-weight"><span style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:var(--track-wide);color:var(--white)">800 Black</span><span style="font-family:var(--font-mono);font-size:9px;color:var(--gray-1)">Hero / Emphasis</span></div>
+        <div class="type-weight"><span style="font-family:var(--font-display);font-weight:900;font-size:18px;letter-spacing:var(--track-wide);color:var(--white)">900 Ultra</span><span style="font-family:var(--font-mono);font-size:9px;color:var(--gray-1)">Numbers / Logo</span></div>
+      </div>
+    </div>
+    <div class="type-sample">
+      <span class="type-sample-label">Body — Inter</span>
+      <div class="type-weights">
+        <div class="type-weight"><span style="font-family:var(--font-body);font-weight:400;font-size:var(--text-sm);color:var(--gray-2)">400 Regular — UI labels / descriptions</span></div>
+        <div class="type-weight"><span style="font-family:var(--font-body);font-weight:500;font-size:var(--text-sm);color:var(--gray-3)">500 Medium — Data / active text</span></div>
+        <div class="type-weight"><span style="font-family:var(--font-body);font-weight:600;font-size:var(--text-sm);color:var(--white)">600 Semibold — Emphasis / highlights</span></div>
+      </div>
+    </div>
+    <div class="type-sample">
+      <span class="type-sample-label">Mono — IBM Plex Mono</span>
+      <div class="type-weights">
+        <div class="type-weight"><span style="font-family:var(--font-mono);font-weight:500;font-size:var(--text-sm);color:var(--white);font-variant-numeric:tabular-nums">01:23.456</span><span style="font-family:var(--font-mono);font-size:9px;color:var(--gray-1)">Timing / Telemetry</span></div>
+        <div class="type-weight"><span style="font-family:var(--font-mono);font-weight:600;font-size:var(--text-sm);color:var(--accent);font-variant-numeric:tabular-nums">+00.987</span><span style="font-family:var(--font-mono);font-size:9px;color:var(--gray-1)">Gaps / Delta</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div style="margin-bottom:var(--space-8)">
+    <span class="panel-label" style="margin-bottom:var(--space-4)">Grid — 12 columns, 64px base unit</span>
+    <div class="grid-vis">
+      <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+      <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+      <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+    </div>
+  </div>
+</section>
+
+<!-- OVERLAYS -->
+<section id="overlays" class="section">
+  <span class="section-sub">03 — Components</span>
+  <h2 class="section-title">Overlay System</h2>
+  <div class="section-line"></div>
+
+  <div class="overlay-grid">
+    <!-- Lower Third -->
+    <div class="overlay-sample">
+      <div class="overlay-sample-header">
+        <span class="overlay-sample-name">Lower Third</span>
+        <span class="tag">Standard</span>
+      </div>
+      <div class="overlay-sample-body">
+        <div class="lower-third">
+          <div class="lower-third-stripe"></div>
+          <div class="lower-third-content">
+            <span class="lower-third-name">Carlos Sainz</span>
+            <span class="lower-third-meta">Toyota Gazoo Racing — #306</span>
+            <span class="lower-third-meta" style="color:var(--accent)">Rally Argentina — Stage 4</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Driver Card -->
+    <div class="overlay-sample">
+      <div class="overlay-sample-header">
+        <span class="overlay-sample-name">Driver Card</span>
+        <span class="tag">Info</span>
+      </div>
+      <div class="overlay-sample-body">
+        <div class="driver-card">
+          <span class="driver-number">55</span>
+          <div class="driver-info">
+            <span class="driver-name">Carlos Sainz</span>
+            <span class="driver-meta">Toyota Gazoo Racing — GR Yaris Rally1</span>
+            <div class="driver-stats">
+              <div class="driver-stat"><span class="driver-stat-value">4th</span><span class="driver-stat-label">Pos</span></div>
+              <div class="driver-stat"><span class="driver-stat-value">12:34.567</span><span class="driver-stat-label">Time</span></div>
+              <div class="driver-stat"><span class="driver-stat-value" style="color:var(--accent)">+2.345</span><span class="driver-stat-label">Gap</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timing Bar -->
+    <div class="overlay-sample">
+      <div class="overlay-sample-header">
+        <span class="overlay-sample-name">Timing Bar — Leaderboard</span>
+        <span class="tag">Data</span>
+      </div>
+      <div class="overlay-sample-body">
+        <div class="timing-bar">
+          <div class="timing-row">
+            <span class="timing-pos">P1</span>
+            <span class="timing-name">C. Sainz</span>
+            <span class="timing-time">12:34.567</span>
+            <span class="timing-gap">—</span>
+            <span class="timing-status">Running</span>
+          </div>
+          <div class="timing-row timing-row-accent">
+            <span class="timing-pos">P2</span>
+            <span class="timing-name">O. Tanak</span>
+            <span class="timing-time">12:35.890</span>
+            <span class="timing-gap">+1.323</span>
+            <span class="timing-status" style="color:var(--accent)">Live</span>
+          </div>
+          <div class="timing-row">
+            <span class="timing-pos">P3</span>
+            <span class="timing-name">T. Neuville</span>
+            <span class="timing-time">12:37.123</span>
+            <span class="timing-gap">+2.556</span>
+            <span class="timing-status">Finished</span>
+          </div>
+          <div class="timing-row">
+            <span class="timing-pos">P4</span>
+            <span class="timing-name">E. Evans</span>
+            <span class="timing-time">12:39.456</span>
+            <span class="timing-gap">+4.889</span>
+            <span class="timing-status">Running</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session Status -->
+    <div class="overlay-sample">
+      <div class="overlay-sample-header">
+        <span class="overlay-sample-name">Session Status</span>
+        <span class="tag">State</span>
+      </div>
+      <div class="overlay-sample-body">
+        <div class="session-status">
+          <div class="session-status-bar"></div>
+          <div style="display:flex;flex-direction:column;gap:var(--space-1)">
+            <span class="session-status-text">Stage 4 — Running</span>
+            <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--gray-1);font-variant-numeric:tabular-nums">02:34.567 — Green</span>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:var(--space-2)">
+            <span class="live-dot"></span>
+            <span class="label" style="color:var(--accent)">On Air</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="overlay-sample" style="grid-column:span 2">
+      <div class="overlay-sample-header">
+        <span class="overlay-sample-name">Information Panel</span>
+        <span class="tag">Technical</span>
+      </div>
+      <div class="overlay-sample-body" style="padding:var(--space-4)">
+        <div class="info-panel">
+          <div class="info-panel-block">
+            <span class="label">Session</span>
+            <span class="data-mono" style="font-size:var(--text-lg)">SS·4</span>
+          </div>
+          <div class="info-panel-block">
+            <span class="label">Length</span>
+            <span class="data-mono" style="font-size:var(--text-lg)">16.82 km</span>
+          </div>
+          <div class="info-panel-block">
+            <span class="label">Surface</span>
+            <span class="data-mono" style="font-size:var(--text-lg)">Gravel</span>
+          </div>
+          <div class="info-panel-block">
+            <span class="label">Weather</span>
+            <span class="data" style="font-size:var(--text-sm)">18°C — Cloudy</span>
+          </div>
+          <div class="info-panel-block">
+            <span class="label">Wind</span>
+            <span class="data" style="font-size:var(--text-sm)">12 km/h — NW</span>
+          </div>
+          <div class="info-panel-block">
+            <span class="label">Visibility</span>
+            <span class="data" style="font-size:var(--text-sm)">Clear</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BROADCAST MOCKUP -->
+<section class="section mockup-section">
+  <span class="section-sub">04 — Application</span>
+  <h2 class="section-title">On-Air Mockup</h2>
+  <div class="section-line"></div>
+
+  <div class="mockup-frame">
+    <div class="mockup-grid-lines"></div>
+
+    <!-- Background race image simulation -->
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0F0F11 0%,#1A1A1E 40%,#0A0A0C 100%)">
+      <div style="position:absolute;bottom:10%;right:10%;width:60%;height:40%;background:radial-gradient(ellipse at center,rgba(255,107,0,.04) 0%,transparent 70%)"></div>
+    </div>
+
+    <!-- Circuit line overlay -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.04" viewBox="0 0 1440 810" preserveAspectRatio="none">
+      <path d="M0 405 Q180 300 360 405 Q540 510 720 405 Q900 300 1080 405 Q1260 510 1440 405" stroke="var(--white)" stroke-width="2" fill="none"/>
+      <path d="M0 405 Q180 300 360 405 Q540 510 720 405 Q900 300 1080 405 Q1260 510 1440 405" stroke="var(--accent)" stroke-width="1" fill="none" transform="translate(0,2)"/>
+    </svg>
+
+    <div class="mockup-content">
+      <!-- Top bar -->
+      <div class="mockup-top-bar">
+        <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+          <div class="mockup-overlay-label" style="display:flex;align-items:center;gap:var(--space-2)">
+            <span class="live-dot"></span> Live — SS·4
+          </div>
+        </div>
+        <div class="mockup-timing" style="position:relative;width:auto;padding:var(--space-3);background:var(--bg-primary);border:var(--line-1) solid var(--border-subtle)">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4)">
+            <div><span class="label">P1</span><span class="data-mono" style="font-size:var(--text-sm);color:var(--accent)">C. Sainz</span></div>
+            <div><span class="label">P2</span><span class="data-mono" style="font-size:var(--text-sm)">O. Tanak</span></div>
+            <div><span class="label">P3</span><span class="data-mono" style="font-size:var(--text-sm)">T. Neuville</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div class="mockup-bottom-bar">
+        <div class="mockup-lower-third" style="position:relative;width:auto;background:rgba(15,15,17,.85);padding:var(--space-4);border-left:var(--line-2) solid var(--accent)">
+          <div style="display:flex;flex-direction:column;gap:var(--space-1)">
+            <span style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--white);letter-spacing:var(--track-ui);text-transform:uppercase">Carlos Sainz</span>
+            <span style="font-family:var(--font-display);font-size:10px;letter-spacing:var(--track-wide);color:var(--gray-1);text-transform:uppercase">Toyota Gazoo Racing — #306</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:var(--space-2);align-items:flex-end">
+          <span class="mockup-overlay-label" style="background:var(--accent);color:#000;border-color:var(--accent);font-weight:700">FEED+</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-family:var(--font-body);font-size:10px;color:var(--gray-1);margin-top:var(--space-3);text-align:center;letter-spacing:var(--track-ui)">
+    Broadcast frame simulation — 16:9 — timing bar, driver lower third, session status
+  </p>
+</section>
+
+<!-- PRINCIPLES -->
+<section id="principles" class="section">
+  <span class="section-sub">05 — Philosophy</span>
+  <h2 class="section-title">Design Principles</h2>
+  <div class="section-line"></div>
+
+  <div class="principles-grid">
+    <div class="principle-card">
+      <span class="principle-number">01</span>
+      <span class="principle-title">Tool, Not Decoration</span>
+      <span class="principle-desc">Every pixel, line, and color must earn its place through function. If it does not inform hierarchy or readability, it does not exist.</span>
+    </div>
+    <div class="principle-card">
+      <span class="principle-number">02</span>
+      <span class="principle-title">Precision Over Noise</span>
+      <span class="principle-desc">Data is the asset. Present it with surgical clarity. Eliminate visual interference between the viewer and the information.</span>
+    </div>
+    <div class="principle-card">
+      <span class="principle-number">03</span>
+      <span class="principle-title">Broadcast Engineering</span>
+      <span class="principle-desc">Designed for operators under pressure. High contrast, hard edges, consistent anchors, predictable layouts. No surprises on air.</span>
+    </div>
+    <div class="principle-card">
+      <span class="principle-number">04</span>
+      <span class="principle-title">Always Live</span>
+      <span class="principle-desc">Zero latency aesthetics. The interface must feel instantaneous — solid state, no transitions that delay. Speed is the feature.</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-legal">&copy; 2026 Studio+ — All rights reserved</span>
+  <span class="footer-studio">Feed+ Motorsport <span style="color:var(--accent)">+</span> by Studio+</span>
+</footer>
+
+</body>
+</html>

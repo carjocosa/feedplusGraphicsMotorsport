@@ -1,0 +1,4 @@
+project_id = "ocowiymfwjsgmmbulkwy"
+
+[functions.sync-timing]
+verify_jwt = false

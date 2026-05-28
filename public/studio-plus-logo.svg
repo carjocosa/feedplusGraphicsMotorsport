@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 130" fill="currentColor">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;700;900&amp;display=swap');
+      .main { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-weight: 900; font-size: 76px; letter-spacing: -2px; }
+      .plus { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-weight: 900; font-size: 48px; vertical-align: super; }
+      .sub { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 0.5px; }
+      .sub-bold { font-weight: 700; }
+    </style>
+  </defs>
+  
+  <!-- studio+ -->
+  <text x="20" y="75" class="main">studio<tspan class="plus">+</tspan></text>
+  
+  <!-- marketing & medIA -->
+  <text x="20" y="112" class="sub">
+    marketing &amp; med<tspan class="sub-bold">IA</tspan>
+  </text>
+</svg>
