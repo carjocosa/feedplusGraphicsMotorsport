@@ -124,8 +124,16 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
         )}
 
         <div className="max-h-[420px] overflow-y-auto space-y-1">
-          {filteredGrid.map((slot) => (
-            <div key={slot.position} className="grid grid-cols-[40px_60px_1fr_1fr_90px_90px_30px] gap-1 items-center text-xs">
+          {filteredGrid.map((slot) => {
+            const match = entries.find(e => e.carNumber === slot.carNumber);
+            const photo = slot.photoUrl || match?.photoUrl;
+            return (
+            <div key={slot.position} className="grid grid-cols-[40px_40px_60px_1fr_1fr_90px_90px_30px] gap-1 items-center text-xs">
+              {photo ? (
+                <img src={photo} alt="" className="w-8 h-8 rounded-sm object-cover" />
+              ) : (
+                <span className="w-8 h-8 rounded-sm border border-dashed border-muted-foreground" />
+              )}
               <span className="text-center font-bold text-accent">P{slot.position}</span>
               <Input className="h-7 text-xs" value={slot.carNumber} onChange={e => update(slot.position, { carNumber: e.target.value })} />
               <Input className="h-7 text-xs" value={slot.driverName} onChange={e => update(slot.position, { driverName: e.target.value })} />
@@ -134,13 +142,16 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
               <Input className="h-7 text-xs font-mono" value={slot.gap ?? ''} onChange={e => update(slot.position, { gap: e.target.value })} placeholder="+0.123" />
               <button onClick={() => remove(slot.position)} className="text-rally-red hover:opacity-70">✕</button>
             </div>
-          ))}
+          );})}
         </div>
 
         <GraphicControl
           label="Parrilla de Salida"
           graphicId={'startGrid' as any}
-          onTake={() => onTake('startGrid', filteredGrid)}
+          onTake={() => onTake('startGrid', filteredGrid.map(s => {
+            const match = entries.find(e => e.carNumber === s.carNumber);
+            return { ...s, photoUrl: s.photoUrl || match?.photoUrl || undefined };
+          }))}
           onClear={() => onClear('startGrid')}
           isLive={liveGraphics.has('startGrid')}
         />

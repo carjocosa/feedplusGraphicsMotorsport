@@ -70,7 +70,16 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
     ]);
   };
 
+  const resolvePhoto = (carNumber: string, fallback?: string) => {
+    const match = entries.find(e => e.carNumber === carNumber);
+    return fallback || match?.photoUrl || undefined;
+  };
+
   const cols: ColDef[] = [
+    { key: 'photo', label: '', width: '32px', render: (r) => {
+      const src = resolvePhoto(r.carNumber, r.photoUrl);
+      return src ? <img src={src} alt="" className="w-7 h-7 rounded-sm object-cover" /> : <span className="w-7 h-7 rounded-sm border border-dashed border-muted-foreground block" />;
+    }},
     { key: 'position', label: 'POS', width: '40px', render: (r) => <span className="text-xs text-center font-bold">{r.position}</span> },
     { key: 'carNumber', label: 'Nº', width: '60px', render: (r) => <Input className="h-7 text-xs" value={r.carNumber} onChange={e => update(r.carNumber, { carNumber: e.target.value })} /> },
     { key: 'driverName', label: 'Piloto', width: '1fr', render: (r) => <Input className="h-7 text-xs" value={r.driverName} onChange={e => update(r.carNumber, { driverName: e.target.value })} /> },
@@ -175,7 +184,15 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
         <GraphicControl
           label="Tiempos en Vivo"
           graphicId={'circuitTiming' as any}
-          onTake={() => onTake('circuitTiming', { rows: filteredTiming, currentLap: event.currentLap, totalLaps: event.totalLaps, columns: getLiveCols(event.sessionType) })}
+          onTake={() => onTake('circuitTiming', {
+            rows: filteredTiming.map(r => {
+              const match = entries.find(e => e.carNumber === r.carNumber);
+              return { ...r, photoUrl: r.photoUrl || match?.photoUrl || undefined };
+            }),
+            currentLap: event.currentLap,
+            totalLaps: event.totalLaps,
+            columns: getLiveCols(event.sessionType),
+          })}
           onClear={() => onClear('circuitTiming')}
           isLive={liveGraphics.has('circuitTiming')}
         />
