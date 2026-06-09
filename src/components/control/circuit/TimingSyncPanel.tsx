@@ -68,11 +68,52 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
       interval: String(get('interval') ?? ''),
       lastLap: String(get('lastLap') ?? ''),
       bestLap: String(get('bestLap') ?? ''),
+      totalTime: String(get('totalTime') ?? ''),
       pitStops: numOr('pitStops', 0),
       status: (get('status') as CircuitTimingEntry['status']) || 'racing',
       photoUrl: match?.photoUrl || undefined,
     };
     return { row, warns };
+  };
+
+  const fixPositionsAndGaps = (rows: CircuitTimingEntry[]): CircuitTimingEntry[] => {
+    const sorted = rows
+      .map((r, i) => ({ ...r, position: r.position > 0 ? r.position : i + 1 }))
+      .sort((a, b) => a.position - b.position)
+      .map((r, i) => ({ ...r, position: i + 1 }));
+
+    const timeToMs = (t: string): number => {
+      if (!t) return 0;
+      const parts = t.split(':').map(p => parseFloat(p) || 0);
+      if (parts.length === 3) return parts[0] * 3600000 + parts[1] * 60000 + parts[2] * 1000;
+      if (parts.length === 2) return parts[0] * 60000 + parts[1] * 1000;
+      return parts[0] * 1000 || 0;
+    };
+
+    const fmt = (ms: number): string => {
+      if (ms <= 0) return 'LEADER';
+      if (ms >= 60000) return `+${Math.floor(ms / 60000)}:${(Math.round(ms % 60000) / 1000).toFixed(3).padStart(6, '0')}`;
+      return `+${(ms / 1000).toFixed(3)}`;
+    };
+
+    let leaderMs = 0;
+    for (let i = 0; i < sorted.length; i++) {
+      const r = sorted[i];
+      const t = timeToMs(r.totalTime || '');
+      if (i === 0) {
+        leaderMs = t;
+        r.gap = 'LEADER';
+        r.interval = '—';
+      } else if (leaderMs > 0 && t > 0) {
+        r.gap = fmt(t - leaderMs);
+        const prev = timeToMs(sorted[i - 1].totalTime || '');
+        r.interval = prev > 0 ? fmt(t - prev) : '';
+      } else {
+        r.gap = '';
+        r.interval = '';
+      }
+    }
+    return sorted;
   };
 
   const colWidthsOnTake = () => {
@@ -93,9 +134,10 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
       defaultInterval={12}
       masterEntries={entries}
       onAutoSync={(rows) => {
-        const maxLap = Math.max(...rows.map(r => r.lap), 0);
+        const fixed = fixPositionsAndGaps(rows);
+        const maxLap = Math.max(...fixed.map(r => r.lap), 0);
         onTake?.('circuitTiming', {
-          rows,
+          rows: fixed,
           currentLap: maxLap,
           totalLaps: maxLap,
           columns: getLiveCols(event.sessionType),
@@ -103,7 +145,8 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
         });
       }}
       onSync={(rows, meta) => {
-        setTiming(rows);
+        const fixed = fixPositionsAndGaps(rows);
+        setTiming(fixed);
         if (meta?.currentLap || meta?.totalLaps) {
           setEvent({
             ...(meta.currentLap ? { currentLap: meta.currentLap } : {}),

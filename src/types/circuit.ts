@@ -52,6 +52,7 @@ export interface CircuitTimingEntry {
   interval: string;
   lastLap: string;
   bestLap: string;
+  totalTime?: string;
   pitStops?: number;
   status?: 'racing' | 'pit' | 'out';
   isPurple?: boolean;
