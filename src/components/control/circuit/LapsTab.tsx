@@ -13,8 +13,20 @@ interface Props {
   liveGraphics: Set<string>;
 }
 
+const SESSION_LABELS: Record<string, string> = {
+  practice: 'Práctica',
+  qualifying: 'Clasificación',
+  race: 'Carrera',
+  sprint: 'Sprint',
+  feature: 'Feature',
+};
+
 const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
-  const { timing, setTiming, driverLap, setDriverLap, event, setEvent } = useCircuitStore();
+  const { timing, setTiming, driverLap, setDriverLap, event, setEvent, entries, categories, selectedCategory, setSelectedCategory } = useCircuitStore();
+
+  const filteredTiming = selectedCategory
+    ? timing.filter(t => entries.some(e => e.carNumber === t.carNumber && e.category === selectedCategory))
+    : timing;
 
   const update = (i: number, patch: Partial<CircuitTimingEntry>) => {
     const next = [...timing];
@@ -30,7 +42,6 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
     <div className="space-y-4">
       <TimingSyncPanel />
 
-
       <div className="p-4 border border-border bg-card space-y-3">
         <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Sesión / Vueltas</h3>
         <div className="grid grid-cols-3 gap-3">
@@ -41,11 +52,9 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
               onChange={e => setEvent({ sessionType: e.target.value as any })}
               className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm"
             >
-              <option value="practice">Practice</option>
-              <option value="qualifying">Qualifying</option>
-              <option value="race">Race</option>
-              <option value="sprint">Sprint</option>
-              <option value="feature">Feature</option>
+              {Object.entries(SESSION_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
             </select>
           </div>
           <div>
@@ -61,7 +70,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
 
       <div className="p-4 border border-border bg-card space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Live Timing</h3>
+          <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Tiempos en Vivo</h3>
           <div className="w-[280px]">
             <CircuitEntryPicker
               label=""
@@ -87,12 +96,39 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           </div>
         </div>
 
+        {/* Category filter */}
+        {categories.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Filtrar:</span>
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`px-2 py-1 text-[10px] font-semibold uppercase rounded-sm transition-all ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+            >
+              Todas
+            </button>
+            {categories.map(c => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCategory(selectedCategory === c.name ? null : c.name)}
+                className="px-2 py-1 text-[10px] font-semibold uppercase rounded-sm transition-all"
+                style={{
+                  background: selectedCategory === c.name ? `${c.color}22` : undefined,
+                  color: selectedCategory === c.name ? c.color : undefined,
+                  border: `1px solid ${selectedCategory === c.name ? c.color : 'transparent'}`,
+                }}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="grid grid-cols-[40px_60px_1fr_1fr_70px_70px_90px_90px_50px_30px] gap-1 text-[10px] uppercase tracking-wider text-muted-foreground px-1">
-          <span>POS</span><span>Nº</span><span>Piloto</span><span>Equipo</span><span>Lap</span><span>Pits</span><span>Gap</span><span>Last</span><span>★</span><span></span>
+          <span>POS</span><span>Nº</span><span>Piloto</span><span>Equipo</span><span>Vta</span><span>Pits</span><span>Dif</span><span>Últ</span><span>★</span><span></span>
         </div>
 
         <div className="max-h-[360px] overflow-y-auto space-y-1">
-          {timing.map((row, i) => (
+          {filteredTiming.map((row, i) => (
             <div key={i} className="grid grid-cols-[40px_60px_1fr_1fr_70px_70px_90px_90px_50px_30px] gap-1 items-center">
               <span className="text-xs text-center font-bold">{row.position}</span>
               <Input className="h-7 text-xs" value={row.carNumber} onChange={e => update(i, { carNumber: e.target.value })} />
@@ -115,7 +151,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
         </div>
 
         <GraphicControl
-          label="Live Timing"
+          label="Tiempos en Vivo"
           graphicId={'circuitTiming' as any}
           onTake={() => onTake('circuitTiming', { rows: timing, currentLap: event.currentLap, totalLaps: event.totalLaps, columns: getLiveCols(event.sessionType) })}
           onClear={() => onClear('circuitTiming')}
@@ -131,7 +167,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
       </div>
 
       <div className="p-4 border border-border bg-card space-y-3">
-        <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Driver Lap (lower third)</h3>
+        <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Piloto (lower third)</h3>
         <div className="w-[280px]">
           <CircuitEntryPicker
             label="Cargar piloto desde lista"
@@ -154,12 +190,12 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
               <option value={1}>S1</option><option value={2}>S2</option><option value={3}>S3</option>
             </select>
           </div>
-          <div><Label className="text-xs">Last</Label><Input value={driverLap.lastLap} onChange={e => setDriverLap({ lastLap: e.target.value })} /></div>
-          <div><Label className="text-xs">Best</Label><Input value={driverLap.bestLap} onChange={e => setDriverLap({ bestLap: e.target.value })} /></div>
-          <div><Label className="text-xs">Gap líder</Label><Input value={driverLap.gapToLeader} onChange={e => setDriverLap({ gapToLeader: e.target.value })} /></div>
+          <div><Label className="text-xs">Últ vuelta</Label><Input value={driverLap.lastLap} onChange={e => setDriverLap({ lastLap: e.target.value })} /></div>
+          <div><Label className="text-xs">Mejor</Label><Input value={driverLap.bestLap} onChange={e => setDriverLap({ bestLap: e.target.value })} /></div>
+          <div><Label className="text-xs">Dif líder</Label><Input value={driverLap.gapToLeader} onChange={e => setDriverLap({ gapToLeader: e.target.value })} /></div>
         </div>
         <GraphicControl
-          label="Driver Lap LT"
+          label="Piloto (lower third)"
           graphicId={'driverLap' as any}
           onTake={() => onTake('driverLap', { ...driverLap, lap: event.currentLap, totalLaps: event.totalLaps })}
           onClear={() => onClear('driverLap')}

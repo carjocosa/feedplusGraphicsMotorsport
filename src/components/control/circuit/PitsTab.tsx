@@ -58,8 +58,8 @@ const PitsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           <div>
             <Label className="text-xs">Estado</Label>
             <select value={draft.status} onChange={e => setDraft({ ...draft, status: e.target.value as 'in' | 'out' })} className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm">
-              <option value="in">In Pit</option>
-              <option value="out">Out Pit</option>
+              <option value="in">Entrando</option>
+              <option value="out">Saliendo</option>
             </select>
           </div>
         </div>
@@ -88,9 +88,9 @@ const PitsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           {pitEvents.length === 0 && <p className="text-xs text-muted-foreground">Sin eventos.</p>}
         </div>
         <GraphicControl
-          label="Pit Lane Tracker"
+          label="Tracker de Pits"
           graphicId={'pitTracker' as any}
-          onTake={() => onTake('pitTracker', { events: pitEvents, title: 'PIT LANE' })}
+          onTake={() => onTake('pitTracker', { events: pitEvents, title: 'PITS LANE' })}
           onClear={() => onClear('pitTracker')}
           isLive={liveGraphics.has('pitTracker')}
         />

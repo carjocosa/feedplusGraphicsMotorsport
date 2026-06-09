@@ -12,7 +12,11 @@ interface Props {
 }
 
 const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
-  const { grid, setGrid, event, setEvent } = useCircuitStore();
+  const { grid, setGrid, event, setEvent, entries, categories, selectedCategory, setSelectedCategory } = useCircuitStore();
+
+  const filteredEntries = selectedCategory
+    ? entries.filter(e => e.category === selectedCategory)
+    : entries;
 
   const update = (i: number, patch: Partial<GridSlot>) => {
     const next = [...grid];
@@ -25,7 +29,7 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
   };
 
   const buildFromQualifying = () => {
-    const sorted = [...useCircuitStore.getState().entries]
+    const sorted = [...filteredEntries]
       .filter(e => e.qualifyingTime)
       .sort((a, b) => (a.qualifyingTime ?? '').localeCompare(b.qualifyingTime ?? ''));
     setGrid(sorted.map((e, i) => ({
@@ -35,7 +39,23 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
       team: e.team,
       qualifyingTime: e.qualifyingTime,
       gap: i === 0 ? 'POLE' : `+${(0.05 + i * 0.1).toFixed(3)}`,
+      photoUrl: e.photoUrl,
     })));
+  };
+
+  const addToGrid = (e: typeof entries[0]) => {
+    setGrid([
+      ...grid,
+      {
+        position: grid.length + 1,
+        carNumber: e.carNumber,
+        driverName: e.driverName,
+        team: e.team,
+        qualifyingTime: e.qualifyingTime,
+        gap: grid.length === 0 ? 'POLE' : '',
+        photoUrl: e.photoUrl,
+      },
+    ]);
   };
 
   return (
@@ -59,28 +79,43 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
               onClick={buildFromQualifying}
               className="px-3 py-1.5 text-xs font-bold uppercase bg-secondary text-secondary-foreground hover:opacity-80"
             >
-              Generar desde Quali
+              Generar desde Clasificación
             </button>
             <div className="w-[280px]">
               <CircuitEntryPicker
                 label=""
-                onPick={(e) =>
-                  setGrid([
-                    ...grid,
-                    {
-                      position: grid.length + 1,
-                      carNumber: e.carNumber,
-                      driverName: e.driverName,
-                      team: e.team,
-                      qualifyingTime: e.qualifyingTime,
-                      gap: grid.length === 0 ? 'POLE' : '',
-                    },
-                  ])
-                }
+                onPick={addToGrid}
               />
             </div>
           </div>
         </div>
+
+        {/* Category filter */}
+        {categories.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Filtrar:</span>
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`px-2 py-1 text-[10px] font-semibold uppercase rounded-sm transition-all ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+            >
+              Todas
+            </button>
+            {categories.map(c => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCategory(selectedCategory === c.name ? null : c.name)}
+                className="px-2 py-1 text-[10px] font-semibold uppercase rounded-sm transition-all"
+                style={{
+                  background: selectedCategory === c.name ? `${c.color}22` : undefined,
+                  color: selectedCategory === c.name ? c.color : undefined,
+                  border: `1px solid ${selectedCategory === c.name ? c.color : 'transparent'}`,
+                }}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="max-h-[420px] overflow-y-auto space-y-1">
           {grid.map((slot, i) => (
@@ -97,7 +132,7 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
         </div>
 
         <GraphicControl
-          label="Starting Grid"
+          label="Parrilla de Salida"
           graphicId={'startGrid' as any}
           onTake={() => onTake('startGrid', grid)}
           onClear={() => onClear('startGrid')}

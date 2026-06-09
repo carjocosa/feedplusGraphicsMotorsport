@@ -62,7 +62,7 @@ const Podium = ({ data, settings, onMouseDown }: Props) => {
           className="mt-3 font-bold tracking-[0.5em] uppercase"
           style={{ color: settings.primaryColor, fontSize: scaled(settings, 18) }}
         >
-          PODIUM
+          PODIO
         </div>
       </div>
 

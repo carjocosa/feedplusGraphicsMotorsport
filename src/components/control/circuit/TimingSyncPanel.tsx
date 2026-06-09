@@ -13,11 +13,11 @@ const CIRCUIT_FIELDS = [
   { key: 'driverName', label: 'Piloto' },
   { key: 'team', label: 'Equipo' },
   { key: 'lap', label: 'Vuelta', numeric: true },
-  { key: 'gap', label: 'Gap' },
+  { key: 'gap', label: 'Diferencia' },
   { key: 'interval', label: 'Intervalo' },
   { key: 'lastLap', label: 'Última vuelta' },
   { key: 'bestLap', label: 'Mejor vuelta' },
-  { key: 'pitStops', label: 'Pits', numeric: true },
+  { key: 'pitStops', label: 'Paradas', numeric: true },
   { key: 'status', label: 'Estado' },
 ];
 

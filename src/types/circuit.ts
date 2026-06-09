@@ -2,6 +2,12 @@
 
 export type DiscipMode = 'rally' | 'circuit';
 
+export interface Category {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export type FlagKind =
   | 'green'
   | 'yellow'
@@ -16,12 +22,13 @@ export interface CircuitEntry {
   id: string;
   carNumber: string;
   driverName: string;
-  shortName?: string;        // ej: "OGI"
-  country: string;           // emoji bandera
+  shortName?: string;
+  country: string;
   team: string;
-  car: string;               // chasis / motor / vehículo
+  car: string;
   category?: string;
-  qualifyingTime?: string;   // "1:23.456"
+  qualifyingTime?: string;
+  photoUrl?: string;
 }
 
 export interface GridSlot {
@@ -30,7 +37,8 @@ export interface GridSlot {
   driverName: string;
   team: string;
   qualifyingTime?: string;
-  gap?: string;              // delta vs pole "+0.124"
+  gap?: string;
+  photoUrl?: string;
 }
 
 export interface CircuitTimingEntry {
@@ -39,14 +47,15 @@ export interface CircuitTimingEntry {
   driverName: string;
   team: string;
   lap: number;
-  gap: string;               // "LEADER" | "+0.832" | "+1L"
-  interval: string;          // gap al de adelante
+  gap: string;
+  interval: string;
   lastLap: string;
   bestLap: string;
   pitStops?: number;
   status?: 'racing' | 'pit' | 'out';
-  isPurple?: boolean;        // mejor vuelta de la sesión
+  isPurple?: boolean;
   isPersonalBest?: boolean;
+  photoUrl?: string;
 }
 
 export interface DriverLapData {
@@ -94,6 +103,7 @@ export interface PodiumEntry {
   country: string;
   totalTime: string;
   bestLap?: string;
+  photoUrl?: string;
 }
 
 export interface PodiumData {
@@ -108,9 +118,10 @@ export interface FinalResultEntry {
   driverName: string;
   team: string;
   laps: number;
-  totalTime: string;         // "1:23:45.678" (líder) o "+12.345"
+  totalTime: string;
   bestLap: string;
   status?: 'finished' | 'dnf' | 'dsq';
+  photoUrl?: string;
 }
 
 export interface FinalResultsData {

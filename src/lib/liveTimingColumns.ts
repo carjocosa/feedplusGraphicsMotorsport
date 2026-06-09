@@ -9,11 +9,11 @@ export const ALL_COLS: { key: LiveCol; label: string }[] = [
   { key: 'driverName', label: 'Piloto' },
   { key: 'team',       label: 'Equipo' },
   { key: 'lap',        label: 'Vuelta' },
-  { key: 'gap',        label: 'Gap' },
+  { key: 'gap',        label: 'Diferencia' },
   { key: 'interval',   label: 'Intervalo' },
   { key: 'lastLap',    label: 'Última' },
   { key: 'bestLap',    label: 'Mejor' },
-  { key: 'pitStops',   label: 'Pits' },
+  { key: 'pitStops',   label: 'Paradas' },
 ];
 
 const DEFAULTS: Record<SessionKind, LiveCol[]> = {

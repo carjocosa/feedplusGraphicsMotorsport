@@ -39,7 +39,7 @@ const PitTracker = ({ data, settings, onMouseDown }: Props) => {
             className="font-bold tracking-widest uppercase"
             style={{ color: settings.textColor, fontSize: scaled(settings, 20) }}
           >
-            {data.title ?? 'PIT LANE'}
+            {data.title ?? 'PITS LANE'}
           </span>
         </div>
       </div>
@@ -84,7 +84,7 @@ const PitTracker = ({ data, settings, onMouseDown }: Props) => {
                     className="text-[10px] uppercase tracking-wider truncate"
                     style={{ color: withOpacity(settings.textColor, 0.5) }}
                   >
-                    {ev.team} {ev.lap ? `· L${ev.lap}` : ''}
+                    {ev.team} {ev.lap ? `· V${ev.lap}` : ''}
                   </div>
                 </div>
                 <span
@@ -97,7 +97,7 @@ const PitTracker = ({ data, settings, onMouseDown }: Props) => {
                   className="text-right font-bold"
                   style={{ color: arrowColor, fontSize: scaled(settings, 14) }}
                 >
-                  {ev.status === 'in' ? 'IN PIT' : `${arrow} P${ev.positionAfter}`}
+                  {ev.status === 'in' ? 'EN PITS' : `${arrow} P${ev.positionAfter}`}
                 </span>
               </motion.div>
             );

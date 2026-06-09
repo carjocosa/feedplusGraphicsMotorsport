@@ -10,12 +10,11 @@ interface Props {
   onMouseDown?: (e: React.MouseEvent) => void;
 }
 
-const StartGrid = ({ data, settings, title = 'STARTING GRID', onMouseDown }: Props) => {
+const StartGrid = ({ data, settings, title = 'PARRILLA DE SALIDA', onMouseDown }: Props) => {
   const dur = animationDuration(settings);
   const radius = cornerRadius(settings);
   const skew = settings.shearAngle;
 
-  // Render in two-by-two staggered F1-style grid
   const rows: GridSlot[][] = [];
   for (let i = 0; i < data.length; i += 2) rows.push(data.slice(i, i + 2));
 
@@ -31,7 +30,6 @@ const StartGrid = ({ data, settings, title = 'STARTING GRID', onMouseDown }: Pro
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: dur }}
       >
-      {/* Header */}
       <div
         className="flex items-center justify-between px-6"
         style={{
@@ -46,7 +44,6 @@ const StartGrid = ({ data, settings, title = 'STARTING GRID', onMouseDown }: Pro
         >
           {title}
         </span>
-        {/* checkered accent */}
         <div className="flex">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
@@ -60,7 +57,6 @@ const StartGrid = ({ data, settings, title = 'STARTING GRID', onMouseDown }: Pro
         </div>
       </div>
 
-      {/* Rows */}
       <div className="mt-2 space-y-1.5">
         {rows.map((pair, rowIdx) => (
           <div key={rowIdx} className="flex gap-3" style={{ marginLeft: rowIdx % 2 === 1 ? 60 : 0 }}>
@@ -92,6 +88,18 @@ const StartGrid = ({ data, settings, title = 'STARTING GRID', onMouseDown }: Pro
                 >
                   P{slot.position}
                 </span>
+                {slot.photoUrl && (
+                  <img
+                    src={slot.photoUrl}
+                    alt=""
+                    className="rounded-full ml-2 object-cover border-2"
+                    style={{
+                      width: scaled(settings, 38),
+                      height: scaled(settings, 38),
+                      borderColor: slot.position === 1 ? settings.accentColor : withOpacity(settings.textColor, 0.2),
+                    }}
+                  />
+                )}
                 <span
                   className="font-bold ml-2"
                   style={{ color: settings.accentColor, fontSize: scaled(settings, 18) }}

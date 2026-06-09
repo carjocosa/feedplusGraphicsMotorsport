@@ -34,13 +34,13 @@ const FinalResults = ({ data, settings, onMouseDown }: Props) => {
           className="text-[12px] uppercase tracking-[0.3em]"
           style={{ color: withOpacity(settings.textColor, 0.7) }}
         >
-          {data.series} · {data.totalLaps} LAPS
+          {data.series} · {data.totalLaps} VUELTAS
         </span>
         <span
           className="font-bold tracking-widest uppercase"
           style={{ color: settings.textColor, fontSize: scaled(settings, 26) }}
         >
-          {data.raceName} — FINAL RESULTS
+          {data.raceName} — RESULTADOS FINALES
         </span>
       </div>
 
@@ -55,9 +55,9 @@ const FinalResults = ({ data, settings, onMouseDown }: Props) => {
         <span>POS</span>
         <span>#</span>
         <span>PILOTO / EQUIPO</span>
-        <span className="text-right">LAPS</span>
-        <span className="text-right">TIME</span>
-        <span className="text-right">BEST LAP</span>
+        <span className="text-right">VTS</span>
+        <span className="text-right">TIEMPO</span>
+        <span className="text-right">MEJOR VTA</span>
       </div>
 
       {data.results.slice(0, 15).map((r, i) => (

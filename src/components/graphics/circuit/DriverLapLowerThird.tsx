@@ -107,11 +107,11 @@ const DriverLapLowerThird = ({ data, settings, onMouseDown }: Props) => {
           >
             <div style={{ transform: `skewX(${skew}deg)` }} className="flex items-stretch w-full">
               {[
-                { label: 'LAP', value: `${data.lap}/${data.totalLaps}` },
+                { label: 'VTA', value: `${data.lap}/${data.totalLaps}` },
                 { label: `S${data.sector}`, value: data.sectorTime ?? '—' },
-                { label: 'LAST', value: data.lastLap },
-                { label: 'BEST', value: data.bestLap },
-                { label: 'GAP', value: data.gapToLeader },
+                { label: 'ÚLT', value: data.lastLap },
+                { label: 'MEJ', value: data.bestLap },
+                { label: 'DIF', value: data.gapToLeader },
               ].map((kv, i) => (
                 <div
                   key={kv.label}

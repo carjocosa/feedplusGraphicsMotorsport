@@ -10,9 +10,9 @@ interface Props {
 }
 
 const SESSION_LABELS: Record<string, string> = {
-  practice: 'PRACTICE',
-  qualifying: 'QUALIFYING',
-  race: 'RACE',
+  practice: 'PRÁCTICA',
+  qualifying: 'CLASIFICACIÓN',
+  race: 'CARRERA',
   sprint: 'SPRINT',
   feature: 'FEATURE',
 };
@@ -97,7 +97,7 @@ const CircuitScorebug = ({ data, settings, onMouseDown }: Props) => {
               className="text-[10px] uppercase tracking-widest font-bold"
               style={{ color: withOpacity(settings.textColor, 0.6) }}
             >
-              LAP
+              VUELTA
             </div>
             <div
               className="font-bold tabular-nums"

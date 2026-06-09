@@ -20,11 +20,11 @@ const COL_DEFS: Record<LiveCol, ColDef> = {
   carNumber:  { key: 'carNumber',  label: '#',      width: '44px' },
   driverName: { key: 'driverName', label: 'PILOTO', width: '1fr' },
   team:       { key: 'team',       label: 'EQUIPO', width: '1fr' },
-  lap:        { key: 'lap',        label: 'LAP',    width: '50px', align: 'right' },
-  gap:        { key: 'gap',        label: 'GAP',    width: '90px', align: 'right', mono: true },
+  lap:        { key: 'lap',        label: 'VTA',    width: '50px', align: 'right' },
+  gap:        { key: 'gap',        label: 'DIF',    width: '90px', align: 'right', mono: true },
   interval:   { key: 'interval',   label: 'INT',    width: '90px', align: 'right', mono: true },
-  lastLap:    { key: 'lastLap',    label: 'LAST',   width: '90px', align: 'right', mono: true },
-  bestLap:    { key: 'bestLap',    label: 'BEST',   width: '90px', align: 'right', mono: true },
+  lastLap:    { key: 'lastLap',    label: 'ÚLT',    width: '90px', align: 'right', mono: true },
+  bestLap:    { key: 'bestLap',    label: 'MEJ',    width: '90px', align: 'right', mono: true },
   pitStops:   { key: 'pitStops',   label: 'PIT',    width: '60px', align: 'right' },
 };
 
@@ -40,7 +40,7 @@ interface Props {
   onMouseDown?: (e: React.MouseEvent) => void;
 }
 
-const CircuitLiveTiming = ({ data, settings, title = 'LIVE TIMING', currentLap, totalLaps, columns, onMouseDown }: Props) => {
+const CircuitLiveTiming = ({ data, settings, title = 'TIEMPOS EN VIVO', currentLap, totalLaps, columns, onMouseDown }: Props) => {
   const dur = animationDuration(settings);
   const radius = cornerRadius(settings);
   const cols: LiveCol[] = columns && columns.length ? columns : DEFAULT_COLS;

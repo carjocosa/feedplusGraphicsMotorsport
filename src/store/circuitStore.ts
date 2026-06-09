@@ -9,11 +9,16 @@ import type {
   PodiumData,
   FinalResultsData,
   CircuitEventData,
+  Category,
 } from '@/types/circuit';
+
+const STORAGE_KEY = 'feedplus-circuit';
 
 interface CircuitStore {
   event: CircuitEventData;
   entries: CircuitEntry[];
+  categories: Category[];
+  selectedCategory: string | null;
   selectedEntryId: string | null;
   grid: GridSlot[];
   timing: CircuitTimingEntry[];
@@ -28,6 +33,11 @@ interface CircuitStore {
   addEntry: (e: CircuitEntry) => void;
   updateEntry: (id: string, e: Partial<CircuitEntry>) => void;
   removeEntry: (id: string) => void;
+  setCategories: (c: Category[]) => void;
+  addCategory: (c: Category) => void;
+  updateCategory: (id: string, c: Partial<Category>) => void;
+  removeCategory: (id: string) => void;
+  setSelectedCategory: (c: string | null) => void;
   selectEntry: (id: string | null) => void;
   setGrid: (g: GridSlot[]) => void;
   setTiming: (t: CircuitTimingEntry[]) => void;
@@ -39,15 +49,40 @@ interface CircuitStore {
   setFinalResults: (d: Partial<FinalResultsData>) => void;
 }
 
+function loadPersisted() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') return parsed;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function persist(s: Partial<Pick<CircuitStore, 'entries' | 'categories'>>) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch { /* ignore quota */ }
+}
+
+const persisted = loadPersisted();
+
+const demoCategories: Category[] = [
+  { id: 'cat-kz', name: 'KZ', color: '#FF6B00' },
+  { id: 'cat-rotax', name: 'Rotax', color: '#2563EB' },
+  { id: 'cat-junior', name: 'Junior', color: '#16A34A' },
+  { id: 'cat-cadete', name: 'Cadete', color: '#A855F7' },
+];
+
 const demoEntries: CircuitEntry[] = [
   { id: 'k1', carNumber: '7',  driverName: 'Mateo Vázquez',   shortName: 'VAZ', country: '🇦🇷', team: 'TGR Karting',   car: 'Tony Kart / Vortex', category: 'KZ',  qualifyingTime: '0:48.124' },
   { id: 'k2', carNumber: '12', driverName: 'Lucía Romero',    shortName: 'ROM', country: '🇦🇷', team: 'Croc Promotor',  car: 'CRG / IAME',         category: 'KZ',  qualifyingTime: '0:48.301' },
   { id: 'k3', carNumber: '3',  driverName: 'Iván Castelli',   shortName: 'CAS', country: '🇮🇹', team: 'Birel ART',      car: 'Birel ART / TM',     category: 'KZ',  qualifyingTime: '0:48.412' },
   { id: 'k4', carNumber: '21', driverName: 'Bruno Salvi',     shortName: 'SAL', country: '🇧🇷', team: 'KSB Motorsport', car: 'Kosmic / Vortex',    category: 'KZ',  qualifyingTime: '0:48.488' },
   { id: 'k5', carNumber: '44', driverName: 'Tomás Aguilera',  shortName: 'AGU', country: '🇦🇷', team: 'Praga Racing',   car: 'Praga / IAME',       category: 'KZ',  qualifyingTime: '0:48.512' },
-  { id: 'k6', carNumber: '88', driverName: 'Hugo Lambert',    shortName: 'LAM', country: '🇫🇷', team: 'Sodi Racing',    car: 'Sodi / TM',          category: 'KZ',  qualifyingTime: '0:48.591' },
-  { id: 'k7', carNumber: '5',  driverName: 'Yuki Tanabe',     shortName: 'TAN', country: '🇯🇵', team: 'OK Japan',       car: 'OK1 / IAME',         category: 'KZ',  qualifyingTime: '0:48.677' },
-  { id: 'k8', carNumber: '17', driverName: 'Diego Méndez',    shortName: 'MEN', country: '🇲🇽', team: 'Energy Corse',   car: 'Energy / TM',        category: 'KZ',  qualifyingTime: '0:48.733' },
+  { id: 'k6', carNumber: '88', driverName: 'Hugo Lambert',    shortName: 'LAM', country: '🇫🇷', team: 'Sodi Racing',    car: 'Sodi / TM',          category: 'Rotax',  qualifyingTime: '0:48.591' },
+  { id: 'k7', carNumber: '5',  driverName: 'Yuki Tanabe',     shortName: 'TAN', country: '🇯🇵', team: 'OK Japan',       car: 'OK1 / IAME',         category: 'Rotax',  qualifyingTime: '0:48.677' },
+  { id: 'k8', carNumber: '17', driverName: 'Diego Méndez',    shortName: 'MEN', country: '🇲🇽', team: 'Energy Corse',   car: 'Energy / TM',        category: 'Junior',  qualifyingTime: '0:48.733' },
 ];
 
 export const useCircuitStore = create<CircuitStore>((set) => ({
@@ -59,9 +94,11 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
     totalLaps: 22,
     currentLap: 9,
   },
-  entries: demoEntries,
+  entries: persisted?.entries ?? demoEntries,
+  categories: persisted?.categories ?? demoCategories,
+  selectedCategory: null,
   selectedEntryId: 'k1',
-  grid: demoEntries.map((e, i) => ({
+  grid: (persisted?.entries ?? demoEntries).map((e: CircuitEntry, i: number) => ({
     position: i + 1,
     carNumber: e.carNumber,
     driverName: e.driverName,
@@ -124,13 +161,49 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
   },
 
   setEvent: (d) => set((s) => ({ event: { ...s.event, ...d } })),
-  setEntries: (e) => set({ entries: e }),
-  addEntry: (e) => set((s) => ({ entries: [...s.entries, e] })),
-  updateEntry: (id, e) => set((s) => ({ entries: s.entries.map(x => x.id === id ? { ...x, ...e } : x) })),
-  removeEntry: (id) => set((s) => ({
-    entries: s.entries.filter(x => x.id !== id),
-    selectedEntryId: s.selectedEntryId === id ? null : s.selectedEntryId,
-  })),
+  setEntries: (e) => set((s) => {
+    persist({ entries: e, categories: s.categories });
+    return { entries: e };
+  }),
+  addEntry: (e) => set((s) => {
+    const entries = [...s.entries, e];
+    persist({ entries, categories: s.categories });
+    return { entries };
+  }),
+  updateEntry: (id, e) => set((s) => {
+    const entries = s.entries.map(x => x.id === id ? { ...x, ...e } : x);
+    persist({ entries, categories: s.categories });
+    return { entries };
+  }),
+  removeEntry: (id) => set((s) => {
+    const entries = s.entries.filter(x => x.id !== id);
+    persist({ entries, categories: s.categories });
+    return {
+      entries,
+      selectedEntryId: s.selectedEntryId === id ? null : s.selectedEntryId,
+    };
+  }),
+  setCategories: (c) => set((s) => {
+    persist({ entries: s.entries, categories: c });
+    return { categories: c };
+  }),
+  addCategory: (c) => set((s) => {
+    const categories = [...s.categories, c];
+    persist({ entries: s.entries, categories });
+    return { categories };
+  }),
+  updateCategory: (id, c) => set((s) => {
+    const categories = s.categories.map(x => x.id === id ? { ...x, ...c } : x);
+    persist({ entries: s.entries, categories });
+    return { categories };
+  }),
+  removeCategory: (id) => set((s) => {
+    const categories = s.categories.filter(x => x.id !== id);
+    const entries = s.entries.map(e => e.category === id ? { ...e, category: '' } : e);
+    persist({ entries, categories });
+    return { categories, entries, selectedCategory: s.selectedCategory === id ? null : s.selectedCategory };
+  }),
+  setSelectedCategory: (c) => set({ selectedCategory: c }),
   selectEntry: (id) => set((s) => {
     if (id === null) return { selectedEntryId: null };
     const e = s.entries.find(x => x.id === id);

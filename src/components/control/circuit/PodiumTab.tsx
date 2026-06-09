@@ -12,7 +12,11 @@ interface Props {
 }
 
 const PodiumTab = ({ onTake, onClear, liveGraphics }: Props) => {
-  const { podium, setPodium, finalResults, setFinalResults, event } = useCircuitStore();
+  const { podium, setPodium, finalResults, setFinalResults, event, entries, categories, selectedCategory, setSelectedCategory } = useCircuitStore();
+
+  const filteredResults = selectedCategory
+    ? { ...finalResults, results: finalResults.results.filter(r => entries.some(e => e.carNumber === r.carNumber && e.category === selectedCategory)) }
+    : finalResults;
 
   const updateFinal = (i: number, patch: Partial<FinalResultEntry>) => {
     const next = [...finalResults.results];
@@ -59,7 +63,7 @@ const PodiumTab = ({ onTake, onClear, liveGraphics }: Props) => {
           </div>
         ))}
         <GraphicControl
-          label="Podio (full screen)"
+          label="Podio"
           graphicId={'podium' as any}
           onTake={() => onTake('podium', podium)}
           onClear={() => onClear('podium')}
@@ -68,17 +72,47 @@ const PodiumTab = ({ onTake, onClear, liveGraphics }: Props) => {
       </div>
 
       <div className="p-4 border border-border bg-card space-y-3">
-        <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Resultados finales</h3>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Resultados finales</h3>
+        </div>
+
+        {/* Category filter */}
+        {categories.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Filtrar:</span>
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`px-2 py-1 text-[10px] font-semibold uppercase rounded-sm transition-all ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+            >
+              Todas
+            </button>
+            {categories.map(c => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedCategory(selectedCategory === c.name ? null : c.name)}
+                className="px-2 py-1 text-[10px] font-semibold uppercase rounded-sm transition-all"
+                style={{
+                  background: selectedCategory === c.name ? `${c.color}22` : undefined,
+                  color: selectedCategory === c.name ? c.color : undefined,
+                  border: `1px solid ${selectedCategory === c.name ? c.color : 'transparent'}`,
+                }}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="grid grid-cols-3 gap-3">
           <div><Label className="text-xs">Serie</Label><Input value={finalResults.series} onChange={e => setFinalResults({ series: e.target.value })} /></div>
           <div><Label className="text-xs">Carrera</Label><Input value={finalResults.raceName} onChange={e => setFinalResults({ raceName: e.target.value })} /></div>
           <div><Label className="text-xs">Total vueltas</Label><Input type="number" value={finalResults.totalLaps} onChange={e => setFinalResults({ totalLaps: +e.target.value })} /></div>
         </div>
         <div className="grid grid-cols-[40px_50px_1fr_1fr_60px_100px_90px_60px] gap-1 text-[10px] uppercase tracking-wider text-muted-foreground px-1">
-          <span>POS</span><span>Nº</span><span>Piloto</span><span>Equipo</span><span>Laps</span><span>Tiempo</span><span>Best</span><span>Estado</span>
+          <span>POS</span><span>Nº</span><span>Piloto</span><span>Equipo</span><span>Vts</span><span>Tiempo</span><span>Mejor</span><span>Estado</span>
         </div>
         <div className="max-h-[320px] overflow-y-auto space-y-1">
-          {finalResults.results.map((r, i) => (
+          {filteredResults.results.map((r, i) => (
             <div key={i} className="grid grid-cols-[40px_50px_1fr_1fr_60px_100px_90px_60px] gap-1 items-center text-xs">
               <Input className="h-7 text-xs" value={r.position} onChange={e => updateFinal(i, { position: +e.target.value })} />
               <Input className="h-7 text-xs" value={r.carNumber} onChange={e => updateFinal(i, { carNumber: e.target.value })} />
@@ -98,7 +132,7 @@ const PodiumTab = ({ onTake, onClear, liveGraphics }: Props) => {
         <GraphicControl
           label="Resultados Finales"
           graphicId={'finalResults' as any}
-          onTake={() => onTake('finalResults', finalResults)}
+          onTake={() => onTake('finalResults', filteredResults)}
           onClear={() => onClear('finalResults')}
           isLive={liveGraphics.has('finalResults')}
         />
