@@ -76,60 +76,6 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
     return { row, warns };
   };
 
-  const fixPositionsAndGaps = (rows: CircuitTimingEntry[]): CircuitTimingEntry[] => {
-    const sorted = rows
-      .map((r, i) => ({ ...r, position: r.position > 0 ? r.position : i + 1 }))
-      .sort((a, b) => a.position - b.position)
-      .map((r, i) => ({ ...r, position: i + 1 }));
-
-    const timeToMs = (t: string): number => {
-      if (!t) return 0;
-      const parts = t.split(':').map(p => parseFloat(p) || 0);
-      if (parts.length === 3) return parts[0] * 3600000 + parts[1] * 60000 + parts[2] * 1000;
-      if (parts.length === 2) return parts[0] * 60000 + parts[1] * 1000;
-      return parts[0] * 1000 || 0;
-    };
-
-    const fmt = (ms: number): string => {
-      if (ms <= 0) return 'LEADER';
-      if (ms >= 60000) return `+${Math.floor(ms / 60000)}:${(Math.round(ms % 60000) / 1000).toFixed(3).padStart(6, '0')}`;
-      return `+${(ms / 1000).toFixed(3)}`;
-    };
-
-    // Build cumulative times — try totalTime first, fall back to lastLap×lap
-    const getCumulative = (r: CircuitTimingEntry): number => {
-      const t = timeToMs(r.totalTime || '');
-      if (t > 0) return t;
-      const ll = timeToMs(r.lastLap || '');
-      if (ll > 0) return ll * (r.lap || 1);
-      return 0;
-    };
-
-    const cums = sorted.map(getCumulative);
-    // If all cumulative values are the same (e.g. totalTime is actually lap count),
-    // force fallback to lastLap-based computation
-    const allEqual = cums.length > 1 && cums.every(c => c === cums[0]);
-
-    let leaderMs = 0;
-    for (let i = 0; i < sorted.length; i++) {
-      const r = sorted[i];
-      const t = allEqual ? timeToMs(r.lastLap || '') * (r.lap || 1) : cums[i];
-      if (i === 0) {
-        leaderMs = t;
-        r.gap = 'LEADER';
-        r.interval = '—';
-      } else if (leaderMs > 0 && t > 0) {
-        r.gap = fmt(t - leaderMs);
-        const prev = getCumulative(sorted[i - 1]);
-        r.interval = prev > 0 ? fmt(t - prev) : '';
-      } else {
-        r.gap = i === 0 ? 'LEADER' : '';
-        r.interval = '';
-      }
-    }
-    return sorted;
-  };
-
   const colWidthsOnTake = () => {
     const w: Partial<Record<LiveCol, string>> = {};
     for (const c of ALL_COLS) {
@@ -148,10 +94,9 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
       defaultInterval={12}
       masterEntries={entries}
       onAutoSync={(rows) => {
-        const fixed = fixPositionsAndGaps(rows);
-        const maxLap = Math.max(...fixed.map(r => r.lap), 0);
+        const maxLap = Math.max(...rows.map(r => r.lap), 0);
         onTake?.('circuitTiming', {
-          rows: fixed,
+          rows,
           currentLap: maxLap,
           totalLaps: maxLap,
           columns: getLiveCols(event.sessionType),
@@ -159,8 +104,7 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
         });
       }}
       onSync={(rows, meta) => {
-        const fixed = fixPositionsAndGaps(rows);
-        setTiming(fixed);
+        setTiming(rows);
         if (meta?.currentLap || meta?.totalLaps) {
           setEvent({
             ...(meta.currentLap ? { currentLap: meta.currentLap } : {}),

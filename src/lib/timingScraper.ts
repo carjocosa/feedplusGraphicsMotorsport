@@ -186,17 +186,46 @@ const formatDiff = (ms: number): string => {
 };
 
 const computeDiffs = (rows: Record<string, unknown>[]): void => {
+  // Sort by cumulative time computed from lastLap × laps (proxy for total race time).
+  // This is more reliable than relying on the $G totalTime field, whose format
+  // varies across RM server versions.
+  const getCumulative = (r: Record<string, unknown>): number => {
+    const lap = parseInt(r.laps as string, 10) || parseInt(r.lap as string, 10) || 0;
+    if (lap <= 0) return 0;
+
+    // Use lastLap × laps as the primary cumulative time
+    const ll = timeToMs(r.lastLap as string);
+    if (ll > 0) return ll * lap;
+
+    // Fallback: bestLap × laps
+    const bl = timeToMs(r.bestLap as string);
+    if (bl > 0) return bl * lap;
+
+    // Last resort: raw totalTime from protocol
+    return timeToMs(r.totalTime as string);
+  };
+
+  const withCum = rows.map(r => ({ row: r, cum: getCumulative(r) }));
+  // Only sort when cumulative times are available and differ
+  const hasValidCum = withCum.some(w => w.cum > 0);
+  const allEqual = withCum.every(w => w.cum === withCum[0].cum);
+  if (hasValidCum && !allEqual) {
+    withCum.sort((a, b) => a.cum - b.cum);
+  }
+
   let leaderTotalMs = 0;
-  for (let i = 0; i < rows.length; i++) {
-    const totalMs = timeToMs(rows[i].totalTime as string);
+  for (let i = 0; i < withCum.length; i++) {
+    const r = withCum[i].row;
+    const totalMs = withCum[i].cum;
+    r.position = i + 1;
     if (i === 0) {
       leaderTotalMs = totalMs;
-      rows[i].gap = 'LEADER';
-      rows[i].interval = '—';
+      r.gap = 'LEADER';
+      r.interval = '—';
     } else {
-      rows[i].gap = leaderTotalMs > 0 && totalMs > 0 ? formatDiff(totalMs - leaderTotalMs) : '';
-      const prev = timeToMs(rows[i - 1].totalTime as string);
-      rows[i].interval = prev > 0 && totalMs > 0 ? formatDiff(totalMs - prev) : '';
+      r.gap = leaderTotalMs > 0 && totalMs > 0 ? formatDiff(totalMs - leaderTotalMs) : '';
+      const prev = withCum[i - 1].cum;
+      r.interval = prev > 0 && totalMs > 0 ? formatDiff(totalMs - prev) : '';
     }
   }
 };
