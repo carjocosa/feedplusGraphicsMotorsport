@@ -13,6 +13,8 @@ const DriverLapLowerThird = ({ data, settings, onMouseDown }: Props) => {
   const skew = settings.shearAngle;
   const dur = animationDuration(settings);
   const radius = cornerRadius(settings);
+  const showTelemetry = data.showTelemetry !== false;
+  const totalHeight = showTelemetry ? 130 : 94;
 
   return (
     <div style={layoutStyle(settings, 'driverLap')} onMouseDown={onMouseDown}>
@@ -31,7 +33,7 @@ const DriverLapLowerThird = ({ data, settings, onMouseDown }: Props) => {
             background: settings.accentColor,
             color: settings.secondaryColor,
             width: scaled(settings, 110),
-            height: scaled(settings, 130),
+            height: scaled(settings, totalHeight),
             clipPath: skew > 0 ? `polygon(0 0, 100% 0, ${100 - skew}% 100%, 0 100%)` : undefined,
             borderRadius: radius,
           }}
@@ -94,49 +96,51 @@ const DriverLapLowerThird = ({ data, settings, onMouseDown }: Props) => {
             </span>
           </div>
 
-          {/* Telemetry strip */}
-          <div
-            className="flex items-stretch -mt-px"
-            style={{
-              background: withOpacity(settings.secondaryColor, 0.85),
-              transform: `skewX(-${skew}deg)`,
-              marginLeft: skew * 1.5,
-              minWidth: 540,
-              borderRadius: radius,
-            }}
-          >
-            <div style={{ transform: `skewX(${skew}deg)` }} className="flex items-stretch w-full">
-              {[
-                { label: 'VTA', value: `${data.lap}/${data.totalLaps}` },
-                { label: `S${data.sector}`, value: data.sectorTime ?? '—' },
-                { label: 'ÚLT', value: data.lastLap },
-                { label: 'MEJ', value: data.bestLap },
-                { label: 'DIF', value: data.gapToLeader },
-              ].map((kv, i) => (
-                <div
-                  key={kv.label}
-                  className="flex flex-col items-start justify-center px-4 py-1"
-                  style={{
-                    borderRight: i < 4 ? `1px solid ${withOpacity(settings.textColor, 0.15)}` : 'none',
-                    minWidth: 90,
-                  }}
-                >
-                  <span
-                    className="text-[10px] uppercase tracking-widest font-bold"
-                    style={{ color: settings.accentColor }}
+          {/* Telemetry strip (optional) */}
+          {showTelemetry && (
+            <div
+              className="flex items-stretch -mt-px"
+              style={{
+                background: withOpacity(settings.secondaryColor, 0.85),
+                transform: `skewX(-${skew}deg)`,
+                marginLeft: skew * 1.5,
+                minWidth: 540,
+                borderRadius: radius,
+              }}
+            >
+              <div style={{ transform: `skewX(${skew}deg)` }} className="flex items-stretch w-full">
+                {[
+                  { label: 'VTA', value: `${data.lap}/${data.totalLaps}` },
+                  { label: `S${data.sector}`, value: data.sectorTime ?? '—' },
+                  { label: 'ÚLT', value: data.lastLap },
+                  { label: 'MEJ', value: data.bestLap },
+                  { label: 'DIF', value: data.gapToLeader },
+                ].map((kv, i) => (
+                  <div
+                    key={kv.label}
+                    className="flex flex-col items-start justify-center px-4 py-1"
+                    style={{
+                      borderRight: i < 4 ? `1px solid ${withOpacity(settings.textColor, 0.15)}` : 'none',
+                      minWidth: 90,
+                    }}
                   >
-                    {kv.label}
-                  </span>
-                  <span
-                    className="font-bold tabular-nums"
-                    style={{ color: settings.textColor, fontSize: scaled(settings, 16) }}
-                  >
-                    {kv.value}
-                  </span>
-                </div>
-              ))}
+                    <span
+                      className="text-[10px] uppercase tracking-widest font-bold"
+                      style={{ color: settings.accentColor }}
+                    >
+                      {kv.label}
+                    </span>
+                    <span
+                      className="font-bold tabular-nums"
+                      style={{ color: settings.textColor, fontSize: scaled(settings, 16) }}
+                    >
+                      {kv.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </motion.div>
     </div>

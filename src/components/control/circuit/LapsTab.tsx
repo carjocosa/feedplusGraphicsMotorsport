@@ -216,6 +216,12 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           <div><Label className="text-xs">Mejor</Label><Input value={driverLap.bestLap} onChange={e => setDriverLap({ bestLap: e.target.value })} /></div>
           <div><Label className="text-xs">Dif líder</Label><Input value={driverLap.gapToLeader} onChange={e => setDriverLap({ gapToLeader: e.target.value })} /></div>
         </div>
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors select-none">
+            <input type="checkbox" checked={driverLap.showTelemetry !== false} onChange={e => setDriverLap({ showTelemetry: e.target.checked })} className="accent-primary" />
+            Mostrar tiempos (VTA/ÚLT/MEJ/DIF)
+          </label>
+        </div>
         <GraphicControl
           label="Piloto (lower third)"
           graphicId={'driverLap' as any}

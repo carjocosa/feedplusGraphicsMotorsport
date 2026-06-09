@@ -72,6 +72,7 @@ export interface DriverLapData {
   lastLap: string;
   bestLap: string;
   gapToLeader: string;
+  showTelemetry?: boolean;
 }
 
 export interface GuestLowerThirdData {
