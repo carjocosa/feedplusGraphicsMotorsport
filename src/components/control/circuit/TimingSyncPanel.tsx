@@ -85,6 +85,11 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
     return Object.keys(w).length ? w : undefined;
   };
 
+  const normalizeLap = (rows: CircuitTimingEntry[]): CircuitTimingEntry[] => {
+    const maxLap = Math.max(...rows.map(r => r.lap), 0);
+    return maxLap > 0 ? rows.map(r => ({ ...r, lap: maxLap })) : rows;
+  };
+
   return (
     <TimingSyncPanel<CircuitTimingEntry, CircuitEntry>
       title="Sync desde Web (Race Monitor / Z-Round / MyLaps)"
@@ -94,9 +99,10 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
       defaultInterval={12}
       masterEntries={entries}
       onAutoSync={(rows) => {
-        const maxLap = Math.max(...rows.map(r => r.lap), 0);
+        const normalized = normalizeLap(rows);
+        const maxLap = Math.max(...normalized.map(r => r.lap), 0);
         onTake?.('circuitTiming', {
-          rows,
+          rows: normalized,
           currentLap: maxLap,
           totalLaps: maxLap,
           columns: getLiveCols(event.sessionType),
@@ -104,7 +110,8 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
         });
       }}
       onSync={(rows, meta) => {
-        setTiming(rows);
+        const normalized = normalizeLap(rows);
+        setTiming(normalized);
         if (meta?.currentLap || meta?.totalLaps) {
           setEvent({
             ...(meta.currentLap ? { currentLap: meta.currentLap } : {}),
