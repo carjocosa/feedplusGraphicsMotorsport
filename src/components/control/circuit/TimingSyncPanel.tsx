@@ -70,6 +70,7 @@ const CircuitTimingSyncPanel = () => {
       bestLap: String(get('bestLap') ?? ''),
       pitStops: numOr('pitStops', 0),
       status: (get('status') as CircuitTimingEntry['status']) || 'racing',
+      photoUrl: match?.photoUrl || undefined,
     };
     return { row, warns };
   };

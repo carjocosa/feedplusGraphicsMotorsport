@@ -89,6 +89,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
                     bestLap: '',
                     pitStops: 0,
                     status: 'racing',
+                    photoUrl: e.photoUrl || undefined,
                   },
                 ])
               }

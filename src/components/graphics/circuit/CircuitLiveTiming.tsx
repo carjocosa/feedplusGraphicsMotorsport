@@ -146,6 +146,11 @@ const CircuitLiveTiming = ({ data, settings, title = 'TIEMPOS EN VIVO', currentL
               if (c === 'driverName') {
                 return (
                   <div key={c} className="flex items-center gap-2 truncate">
+                    {row.photoUrl && (
+                      <img src={row.photoUrl} alt="" className="rounded-full object-cover border"
+                        style={{ width: scaled(settings, 28), height: scaled(settings, 28), borderColor: withOpacity(settings.textColor, 0.2) }}
+                      />
+                    )}
                     <span className="font-semibold truncate" style={{ color: settings.textColor }}>{row.driverName}</span>
                     {!cols.includes('team') && (
                       <span className="text-[10px] uppercase tracking-wider truncate"
@@ -178,7 +183,7 @@ const CircuitLiveTiming = ({ data, settings, title = 'TIEMPOS EN VIVO', currentL
                 return (
                   <span key={c} className={`${align} ${monoCls}`}
                     style={{ color: isPit ? settings.accentColor : withOpacity(settings.textColor, 0.6) }}>
-                    {isPit ? 'IN PIT' : row.pitStops ?? 0}
+                    {isPit ? 'EN PITS' : row.pitStops ?? 0}
                   </span>
                 );
               }
