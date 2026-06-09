@@ -96,20 +96,34 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
       return `+${(ms / 1000).toFixed(3)}`;
     };
 
+    // Build cumulative times — try totalTime first, fall back to lastLap×lap
+    const getCumulative = (r: CircuitTimingEntry): number => {
+      const t = timeToMs(r.totalTime || '');
+      if (t > 0) return t;
+      const ll = timeToMs(r.lastLap || '');
+      if (ll > 0) return ll * (r.lap || 1);
+      return 0;
+    };
+
+    const cums = sorted.map(getCumulative);
+    // If all cumulative values are the same (e.g. totalTime is actually lap count),
+    // force fallback to lastLap-based computation
+    const allEqual = cums.length > 1 && cums.every(c => c === cums[0]);
+
     let leaderMs = 0;
     for (let i = 0; i < sorted.length; i++) {
       const r = sorted[i];
-      const t = timeToMs(r.totalTime || '');
+      const t = allEqual ? timeToMs(r.lastLap || '') * (r.lap || 1) : cums[i];
       if (i === 0) {
         leaderMs = t;
         r.gap = 'LEADER';
         r.interval = '—';
       } else if (leaderMs > 0 && t > 0) {
         r.gap = fmt(t - leaderMs);
-        const prev = timeToMs(sorted[i - 1].totalTime || '');
+        const prev = getCumulative(sorted[i - 1]);
         r.interval = prev > 0 ? fmt(t - prev) : '';
       } else {
-        r.gap = '';
+        r.gap = i === 0 ? 'LEADER' : '';
         r.interval = '';
       }
     }
