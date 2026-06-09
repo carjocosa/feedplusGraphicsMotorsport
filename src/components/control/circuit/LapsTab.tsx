@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import GraphicControl from '@/components/control/GraphicControl';
 import CircuitEntryPicker from './CircuitEntryPicker';
 import TimingSyncPanel from './TimingSyncPanel';
-import type { CircuitTimingEntry } from '@/types/circuit';
+import type { CircuitTimingEntry, GuestLowerThirdData } from '@/types/circuit';
 import { getLiveCols } from '@/lib/liveTimingColumns';
 
 interface Props {
@@ -32,6 +32,7 @@ interface ColDef {
 const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const { timing, setTiming, driverLap, setDriverLap, event, setEvent, entries, categories, selectedCategory, setSelectedCategory } = useCircuitStore();
   const [showPits, setShowPits] = useState(false);
+  const [guest, setGuest] = useState<GuestLowerThirdData>({ name: '', role: '', subtitle: '' });
 
   const filteredTiming = selectedCategory
     ? timing.filter(t => entries.some(e => e.carNumber === t.carNumber && e.category === selectedCategory))
@@ -221,6 +222,22 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           onTake={() => onTake('driverLap', { ...driverLap, lap: event.currentLap, totalLaps: event.totalLaps })}
           onClear={() => onClear('driverLap')}
           isLive={liveGraphics.has('driverLap')}
+        />
+      </div>
+
+      <div className="p-4 border border-border bg-card space-y-3">
+        <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Invitado (lower third)</h3>
+        <div className="grid grid-cols-3 gap-3">
+          <div><Label className="text-xs">Nombre</Label><Input value={guest.name} onChange={e => setGuest(g => ({ ...g, name: e.target.value }))} placeholder="Juan Pérez" /></div>
+          <div><Label className="text-xs">Rol / Cargo</Label><Input value={guest.role} onChange={e => setGuest(g => ({ ...g, role: e.target.value }))} placeholder="Invitado Especial" /></div>
+          <div><Label className="text-xs">Subtítulo</Label><Input value={guest.subtitle} onChange={e => setGuest(g => ({ ...g, subtitle: e.target.value }))} placeholder="FIA Karting" /></div>
+        </div>
+        <GraphicControl
+          label="Invitado (lower third)"
+          graphicId={'guestLowerThird' as any}
+          onTake={() => onTake('guestLowerThird', guest)}
+          onClear={() => onClear('guestLowerThird')}
+          isLive={liveGraphics.has('guestLowerThird')}
         />
       </div>
     </div>

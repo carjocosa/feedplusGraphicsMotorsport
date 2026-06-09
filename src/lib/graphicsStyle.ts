@@ -73,6 +73,7 @@ export const defaultLayoutForGraphic = (g: TransformableGraphic): GraphicLayout 
     pitTracker: { x: 60, y: 60, width: 500, height: 400, opacity: 1, scale: 1, visible: true },
     podium: { x: 0, y: 0, width: 1920, height: 1080, opacity: 1, scale: 1, visible: true },
     finalResults: { x: 60, y: 60, width: 800, height: 700, opacity: 1, scale: 1, visible: true },
+    guestLowerThird: { x: 60, y: 800, width: 600, height: 100, opacity: 1, scale: 1, visible: true },
   };
   return defaults[g] ?? { x: 0, y: 0, width: 400, height: 300, opacity: 1, scale: 1, visible: true };
 };

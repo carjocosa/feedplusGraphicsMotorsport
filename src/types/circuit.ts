@@ -74,6 +74,12 @@ export interface DriverLapData {
   gapToLeader: string;
 }
 
+export interface GuestLowerThirdData {
+  name: string;
+  role: string;
+  subtitle: string;
+}
+
 export interface RaceFlagData {
   flag: FlagKind;
   message?: string;
