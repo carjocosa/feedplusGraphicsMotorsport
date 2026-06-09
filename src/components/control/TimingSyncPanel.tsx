@@ -26,6 +26,7 @@ interface TimingSyncPanelProps<RowType, EntryType extends BaseEntry> {
   defaultInterval: number;
   masterEntries: EntryType[];
   onSync: (rows: RowType[], meta?: { currentLap?: number; totalLaps?: number }) => void;
+  onAutoSync?: (rows: RowType[], meta?: { currentLap?: number; totalLaps?: number }) => void;
   buildRow: (raw: Record<string, unknown>, i: number, mapping: Record<string, string>, autoMatch: boolean, overrides: OverrideMap, entries: EntryType[]) => { row: RowType; warns: string[] };
   extraControls?: React.ReactNode;
   extraPresetFields?: Record<string, unknown>;
@@ -40,6 +41,7 @@ const TimingSyncPanel = <RowType, EntryType extends BaseEntry>({
   defaultInterval,
   masterEntries,
   onSync,
+  onAutoSync,
   buildRow,
   extraControls,
   extraPresetFields,
@@ -109,6 +111,7 @@ const TimingSyncPanel = <RowType, EntryType extends BaseEntry>({
       });
       setWarnings(allWarns.slice(0, 8));
       onSync(mapped);
+      if (running) onAutoSync?.(mapped);
       setLastSync(new Date().toLocaleTimeString());
       if (allWarns.length) {
         toast({ title: `Sync con ${allWarns.length} aviso(s)`, description: 'Revisa la sección "Avisos" abajo' });

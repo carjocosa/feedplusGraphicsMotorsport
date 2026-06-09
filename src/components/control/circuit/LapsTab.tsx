@@ -101,7 +101,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
 
   return (
     <div className="space-y-4">
-      <TimingSyncPanel />
+      <TimingSyncPanel onTake={(id, data) => onTake(id, data)} />
 
       <div className="p-4 border border-border bg-card space-y-3">
         <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Sesión / Vueltas</h3>

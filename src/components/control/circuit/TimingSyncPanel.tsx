@@ -7,6 +7,10 @@ import type { OverrideMap } from '@/lib/entryMatch';
 import { ALL_COLS, getLiveCols, setLiveCols } from '@/lib/liveTimingColumns';
 import type { LiveCol } from '@/components/graphics/circuit/CircuitLiveTiming';
 
+interface Props {
+  onTake?: (id: string, data: any) => void;
+}
+
 const CIRCUIT_FIELDS = [
   { key: 'position', label: 'Posición', numeric: true },
   { key: 'carNumber', label: 'Nº' },
@@ -32,7 +36,7 @@ const toNum = (v: unknown): number | null => {
 
 const SESSIONS: SessionKind[] = ['practice', 'qualifying', 'race', 'sprint', 'feature'];
 
-const CircuitTimingSyncPanel = () => {
+const CircuitTimingSyncPanel = ({ onTake }: Props) => {
   const { setTiming, setEvent, event, entries } = useCircuitStore();
   const [activeCols, setActiveCols] = useState<LiveCol[]>(() => getLiveCols(event.sessionType));
   const [showCols, setShowCols] = useState(false);
@@ -137,6 +141,15 @@ const CircuitTimingSyncPanel = () => {
       fields={CIRCUIT_FIELDS}
       defaultInterval={12}
       masterEntries={entries}
+      onAutoSync={(rows) => {
+        const maxLap = Math.max(...rows.map(r => r.lap), 0);
+        onTake?.('circuitTiming', {
+          rows,
+          currentLap: maxLap,
+          totalLaps: maxLap,
+          columns: getLiveCols(event.sessionType),
+        });
+      }}
       onSync={(rows, meta) => {
         setTiming(rows);
         if (meta?.currentLap || meta?.totalLaps) {
