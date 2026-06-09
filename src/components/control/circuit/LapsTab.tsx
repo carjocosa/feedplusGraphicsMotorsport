@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useCircuitStore } from '@/store/circuitStore';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,7 +6,8 @@ import GraphicControl from '@/components/control/GraphicControl';
 import CircuitEntryPicker from './CircuitEntryPicker';
 import TimingSyncPanel from './TimingSyncPanel';
 import type { CircuitTimingEntry, GuestLowerThirdData } from '@/types/circuit';
-import { getLiveCols } from '@/lib/liveTimingColumns';
+import { ALL_COLS, getLiveCols, setLiveCols } from '@/lib/liveTimingColumns';
+import type { LiveCol } from '@/components/graphics/circuit/CircuitLiveTiming';
 
 interface Props {
   onTake: (id: string, data: any) => void;
@@ -33,6 +34,28 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const { timing, setTiming, driverLap, setDriverLap, event, setEvent, entries, categories, selectedCategory, setSelectedCategory } = useCircuitStore();
   const [showPits, setShowPits] = useState(false);
   const [guest, setGuest] = useState<GuestLowerThirdData>({ name: '', role: '', subtitle: '' });
+  const [activeCols, setActiveCols] = useState<LiveCol[]>(() => getLiveCols(event.sessionType));
+
+  useEffect(() => {
+    setActiveCols(getLiveCols(event.sessionType));
+  }, [event.sessionType]);
+
+  const toggleCol = (c: LiveCol) => {
+    const next = activeCols.includes(c) ? activeCols.filter(x => x !== c) : [...activeCols, c];
+    setActiveCols(next);
+    setLiveCols(event.sessionType, next);
+  };
+
+  const moveCol = (c: LiveCol, dir: -1 | 1) => {
+    const i = activeCols.indexOf(c);
+    if (i < 0) return;
+    const j = i + dir;
+    if (j < 0 || j >= activeCols.length) return;
+    const next = [...activeCols];
+    [next[i], next[j]] = [next[j], next[i]];
+    setActiveCols(next);
+    setLiveCols(event.sessionType, next);
+  };
 
   const filteredTiming = selectedCategory
     ? timing.filter(t => entries.some(e => e.carNumber === t.carNumber && e.category === selectedCategory))
@@ -181,6 +204,35 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           ))}
         </div>
 
+        <details className="border border-border rounded-sm">
+          <summary className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground cursor-pointer px-3 py-2 hover:text-foreground transition-colors select-none">
+            Columnas al aire ({activeCols.length})
+          </summary>
+          <div className="px-3 pb-3 space-y-1">
+            {activeCols.map((c, i) => {
+              const def = ALL_COLS.find(x => x.key === c);
+              return (
+                <div key={c} className="flex items-center gap-2 text-[11px] bg-muted/30 px-2 py-1 rounded-sm">
+                  <span className="text-muted-foreground w-4">{i + 1}.</span>
+                  <span className="flex-1">{def?.label ?? c}</span>
+                  <button onClick={() => moveCol(c, -1)} disabled={i === 0} className="px-1 hover:text-primary disabled:opacity-30">↑</button>
+                  <button onClick={() => moveCol(c, 1)} disabled={i === activeCols.length - 1} className="px-1 hover:text-primary disabled:opacity-30">↓</button>
+                  <button onClick={() => toggleCol(c)} className="px-1 text-rally-red hover:opacity-70">✕</button>
+                </div>
+              );
+            })}
+            {ALL_COLS.filter(c => !activeCols.includes(c.key)).length > 0 && (
+              <div className="pt-1 border-t border-border flex flex-wrap gap-1">
+                {ALL_COLS.filter(c => !activeCols.includes(c.key)).map(c => (
+                  <button key={c.key} onClick={() => toggleCol(c.key)} className="text-[10px] px-2 py-0.5 border border-border hover:bg-primary hover:text-primary-foreground transition-colors rounded-sm">
+                    + {c.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </details>
+
         <GraphicControl
           label="Tiempos en Vivo"
           graphicId={'circuitTiming' as any}
@@ -191,7 +243,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
             }),
             currentLap: event.currentLap,
             totalLaps: event.totalLaps,
-            columns: getLiveCols(event.sessionType),
+            columns: activeCols,
           })}
           onClear={() => onClear('circuitTiming')}
           isLive={liveGraphics.has('circuitTiming')}
