@@ -139,10 +139,236 @@ export const extractFromHTML = (html: string): Record<string, unknown>[] => {
 };
 
 /**
+ * Race Monitor (race-monitor.com) WebSocket protocol scraper.
+ * Race Monitor loads timing data via WebSocket, not in static HTML.
+ */
+interface RMCompetitor {
+  racerID: string;
+  carNumber: string;
+  firstName: string;
+  lastName: string;
+  nationality: string;
+  category: string;
+  position: string;
+  laps: string;
+  totalTime: string;
+  lastLapTime: string;
+  bestLap: string;
+  bestTime: string;
+  bestLapNumber: string;
+}
+
+const extractRaceId = (url: string): string | null => {
+  const match = url.match(/race[-\/]?(\d+)/i) || url.match(/raceid[=:](\d+)/i);
+  return match ? match[1] : null;
+};
+
+const isRaceMonitor = (url: string): boolean => {
+  return /race-monitor\.com/i.test(url);
+};
+
+const fetchRaceMonitor = async (protocolUrl: string, timeoutMs = 4000): Promise<Record<string, unknown>[]> => {
+  const raceId = extractRaceId(protocolUrl);
+  if (!raceId) throw new Error('No se pudo extraer el Race ID de la URL de Race Monitor');
+
+  const getConnectionInfo = async () => {
+    const url = `https://api.race-monitor.com/Info/WebRaceList?raceID=${raceId}`;
+    try {
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (res.ok) return await res.json();
+    } catch { /* CORS blocked — try proxy */ }
+    // Fallback: CORS proxy
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const proxyRes = await fetch(proxyUrl);
+    if (!proxyRes.ok) throw new Error(`No se pudo conectar con Race Monitor API (CORS)`);
+    const proxyData = await proxyRes.json();
+    if (typeof proxyData?.contents === 'string') return JSON.parse(proxyData.contents);
+    throw new Error('Respuesta inválida del proxy CORS');
+  };
+
+  const info = await getConnectionInfo();
+
+  if (!info.CurrentRaces || info.CurrentRaces.length === 0) {
+    throw new Error('No hay una carrera activa para este Race ID');
+  }
+
+  const race = info.CurrentRaces[0];
+  const host = info.LiveTimingHost;
+  const instance = race.Instance;
+  const token = info.LiveTimingToken;
+
+  const wsUrl = `wss://${host}/instance/${instance}/${token}`;
+
+  return new Promise((resolve, reject) => {
+    const competitors = new Map<string, RMCompetitor>();
+    let resolved = false;
+    let resolveTimer: number;
+
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      ws.send(`$JOIN,${instance},${token}`);
+      // Give time for initial data to arrive
+      resolveTimer = window.setTimeout(() => {
+        if (resolved) return;
+        resolved = true;
+        ws.close();
+        const rows = Array.from(competitors.values())
+          .filter(c => c.carNumber)
+          .map(c => {
+            const formatTime = (t: string) => {
+              if (!t || t.indexOf('59:59.999') !== -1) return '';
+              if (t.startsWith('00:')) return t.substring(3);
+              return t;
+            };
+            const lap = c.laps || '';
+            return {
+              position: c.position || '',
+              carNumber: c.carNumber,
+              driverName: `${c.firstName} ${c.lastName}`.trim(),
+              nationality: c.nationality,
+              category: c.category,
+              laps: lap,
+              lap,  // también como singular para auto-detección
+              totalTime: formatTime(c.totalTime),
+              lastLap: formatTime(c.lastLapTime),
+              bestLap: formatTime(c.bestTime),
+              bestLapNumber: c.bestLap || '',
+            };
+          })
+          .sort((a, b) => {
+            const pa = parseInt(a.position, 10) || 9999;
+            const pb = parseInt(b.position, 10) || 9999;
+            return pa - pb;
+          });
+
+        if (rows.length === 0) {
+          reject(new Error('Race Monitor conectado pero no se recibieron datos de pilotos'));
+        } else {
+          resolve(rows);
+        }
+      }, timeoutMs);
+    };
+
+    ws.onmessage = (event) => {
+      const data = typeof event.data === 'string' ? event.data : '';
+      const lines = data.split('\n');
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const raw = line.split(',');
+        const parts = raw.map(p => p.replace(/^"|"$/g, '').trim());
+        const cmd = parts[0];
+
+        switch (cmd) {
+          case '$A': {
+            const [, racerID, carNumber, , firstName, lastName, nationality, category] = parts;
+            const existing = competitors.get(racerID) || { racerID } as RMCompetitor;
+            existing.carNumber = carNumber;
+            existing.firstName = firstName || '';
+            existing.lastName = lastName || '';
+            existing.nationality = nationality || '';
+            existing.category = category || '';
+            competitors.set(racerID, existing);
+            break;
+          }
+          case '$COMP': {
+            const [, racerID, carNumber, category, firstName, lastName, nationality] = parts;
+            const existing = competitors.get(racerID) || { racerID } as RMCompetitor;
+            existing.carNumber = carNumber;
+            existing.firstName = firstName || '';
+            existing.lastName = lastName || '';
+            existing.nationality = nationality || '';
+            existing.category = category || '';
+            competitors.set(racerID, existing);
+            break;
+          }
+          case '$G': {
+            const [, , position, racerID, laps, totalTime] = parts;
+            const existing = competitors.get(racerID);
+            if (existing) {
+              existing.position = position;
+              existing.laps = laps;
+              existing.totalTime = totalTime;
+            }
+            break;
+          }
+          case '$J': {
+            const [, racerID, lastLapTime, totalTime] = parts;
+            const existing = competitors.get(racerID);
+            if (existing) {
+              existing.lastLapTime = lastLapTime;
+              existing.totalTime = totalTime;
+            }
+            break;
+          }
+          case '$H': {
+            const [, , bestPosition, racerID, bestLap, bestTime] = parts;
+            const existing = competitors.get(racerID);
+            if (existing) {
+              existing.bestLapNumber = bestLap;
+              existing.bestTime = bestTime;
+            }
+            break;
+          }
+        }
+      }
+    };
+
+    ws.onerror = () => {
+      if (!resolved) {
+        resolved = true;
+        window.clearTimeout(resolveTimer);
+        reject(new Error('Error de conexión WebSocket con Race Monitor'));
+      }
+    };
+
+    ws.onclose = () => {
+      window.clearTimeout(resolveTimer);
+      if (!resolved) {
+        resolved = true;
+        if (competitors.size === 0) {
+          reject(new Error('Conexión cerrada sin datos. Verificá que el Race ID sea correcto.'));
+        } else {
+          resolve(fallbackResolve());
+        }
+      }
+    };
+
+    const fallbackResolve = () => {
+      return Array.from(competitors.values())
+        .filter(c => c.carNumber)
+        .map(c => {
+          const lap = c.laps || '';
+          return {
+            position: c.position || '',
+            carNumber: c.carNumber,
+            driverName: `${c.firstName} ${c.lastName}`.trim(),
+            nationality: c.nationality,
+            category: c.category,
+            laps: lap,
+            lap,
+            totalTime: c.totalTime?.startsWith('00:') ? c.totalTime.substring(3) : c.totalTime || '',
+            lastLap: c.lastLapTime?.startsWith('00:') ? c.lastLapTime.substring(3) : c.lastLapTime || '',
+            bestLap: c.bestTime?.startsWith('00:') ? c.bestTime.substring(3) : c.bestTime || '',
+            bestLapNumber: c.bestLap || '',
+          };
+        })
+        .sort((a, b) => (parseInt(a.position, 10) || 9999) - (parseInt(b.position, 10) || 9999));
+    };
+  });
+};
+
+/**
  * Main entry point: fetch URL and parse timing data.
  * Returns raw rows with original field names for UI mapping.
  */
 export const fetchTiming = async (url: string): Promise<Record<string, unknown>[]> => {
+  // Race Monitor uses WebSocket — specialized handler needed
+  if (isRaceMonitor(url)) {
+    return fetchRaceMonitor(url);
+  }
+
   // Try direct fetch first
   try {
     const res = await fetch(url, {
