@@ -167,6 +167,40 @@ const isRaceMonitor = (url: string): boolean => {
   return /race-monitor\.com/i.test(url);
 };
 
+const timeToMs = (t: string): number => {
+  if (!t) return 0;
+  const parts = t.split(':').map(p => parseFloat(p) || 0);
+  if (parts.length === 3) return parts[0] * 3600000 + parts[1] * 60000 + parts[2] * 1000;
+  if (parts.length === 2) return parts[0] * 60000 + parts[1] * 1000;
+  return parts[0] * 1000 || 0;
+};
+
+const formatDiff = (ms: number): string => {
+  if (ms <= 0) return 'LEADER';
+  if (ms >= 60000) {
+    const mins = Math.floor(ms / 60000);
+    const secs = Math.round((ms % 60000) / 1000);
+    return `+${mins}:${secs.toString().padStart(2, '0')}.0`;
+  }
+  return `+${(ms / 1000).toFixed(3)}`;
+};
+
+const computeDiffs = (rows: Record<string, unknown>[]): void => {
+  let leaderTotalMs = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const totalMs = timeToMs(rows[i].totalTime as string);
+    if (i === 0) {
+      leaderTotalMs = totalMs;
+      rows[i].gap = 'LEADER';
+      rows[i].interval = '—';
+    } else {
+      rows[i].gap = leaderTotalMs > 0 && totalMs > 0 ? formatDiff(totalMs - leaderTotalMs) : '';
+      const prev = timeToMs(rows[i - 1].totalTime as string);
+      rows[i].interval = prev > 0 && totalMs > 0 ? formatDiff(totalMs - prev) : '';
+    }
+  }
+};
+
 const fetchRaceMonitor = async (protocolUrl: string, timeoutMs = 4000): Promise<Record<string, unknown>[]> => {
   const raceId = extractRaceId(protocolUrl);
   if (!raceId) throw new Error('No se pudo extraer el Race ID de la URL de Race Monitor');
@@ -245,6 +279,7 @@ const fetchRaceMonitor = async (protocolUrl: string, timeoutMs = 4000): Promise<
         if (rows.length === 0) {
           reject(new Error('Race Monitor conectado pero no se recibieron datos de pilotos'));
         } else {
+          computeDiffs(rows);
           resolve(rows);
         }
       }, timeoutMs);
@@ -336,7 +371,7 @@ const fetchRaceMonitor = async (protocolUrl: string, timeoutMs = 4000): Promise<
     };
 
     const fallbackResolve = () => {
-      return Array.from(competitors.values())
+      const rows = Array.from(competitors.values())
         .filter(c => c.carNumber)
         .map(c => {
           const lap = c.laps || '';
@@ -355,6 +390,8 @@ const fetchRaceMonitor = async (protocolUrl: string, timeoutMs = 4000): Promise<
           };
         })
         .sort((a, b) => (parseInt(a.position, 10) || 9999) - (parseInt(b.position, 10) || 9999));
+      computeDiffs(rows);
+      return rows;
     };
   });
 };
