@@ -92,11 +92,10 @@ const StartGrid = ({ data, settings, title = 'PARRILLA DE SALIDA', onMouseDown }
                   <img
                     src={slot.photoUrl}
                     alt=""
-                    className="rounded-full ml-2 object-cover border-2"
+                    className="ml-2 object-contain"
                     style={{
-                      width: scaled(settings, 38),
-                      height: scaled(settings, 38),
-                      borderColor: slot.position === 1 ? settings.accentColor : withOpacity(settings.textColor, 0.2),
+                      width: scaled(settings, 50),
+                      height: scaled(settings, 50),
                     }}
                   />
                 )}

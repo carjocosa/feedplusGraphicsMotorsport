@@ -147,8 +147,8 @@ const CircuitLiveTiming = ({ data, settings, title = 'TIEMPOS EN VIVO', currentL
                 return (
                   <div key={c} className="flex items-center gap-2 truncate">
                     {row.photoUrl && (
-                      <img src={row.photoUrl} alt="" className="rounded-full object-cover border"
-                        style={{ width: scaled(settings, 28), height: scaled(settings, 28), borderColor: withOpacity(settings.textColor, 0.2) }}
+                      <img src={row.photoUrl} alt="" className="object-contain"
+                        style={{ width: scaled(settings, 40), height: scaled(settings, 40) }}
                       />
                     )}
                     <span className="font-semibold truncate" style={{ color: settings.textColor }}>{row.driverName}</span>
