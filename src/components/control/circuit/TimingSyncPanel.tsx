@@ -1,10 +1,8 @@
-import { useState } from 'react';
-import { Label } from '@/components/ui/label';
 import { useCircuitStore } from '@/store/circuitStore';
 import TimingSyncPanel from '../TimingSyncPanel';
 import type { CircuitTimingEntry, CircuitEntry, SessionKind } from '@/types/circuit';
 import type { OverrideMap } from '@/lib/entryMatch';
-import { ALL_COLS, getLiveCols, setLiveCols } from '@/lib/liveTimingColumns';
+import { ALL_COLS, getLiveCols, setLiveCols, getColumnWidth } from '@/lib/liveTimingColumns';
 import type { LiveCol } from '@/components/graphics/circuit/CircuitLiveTiming';
 
 interface Props {
@@ -38,8 +36,6 @@ const SESSIONS: SessionKind[] = ['practice', 'qualifying', 'race', 'sprint', 'fe
 
 const CircuitTimingSyncPanel = ({ onTake }: Props) => {
   const { setTiming, setEvent, event, entries } = useCircuitStore();
-  const [activeCols, setActiveCols] = useState<LiveCol[]>(() => getLiveCols(event.sessionType));
-  const [showCols, setShowCols] = useState(false);
 
   const buildRow = (raw: Record<string, unknown>, i: number, mapping: Record<string, string>, autoMatch: boolean, overrides: OverrideMap, masterEntries: CircuitEntry[]) => {
     const warns: string[] = [];
@@ -79,59 +75,14 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
     return { row, warns };
   };
 
-  const toggleCol = (c: LiveCol) => {
-    const next = activeCols.includes(c) ? activeCols.filter(x => x !== c) : [...activeCols, c];
-    setActiveCols(next);
-    setLiveCols(event.sessionType, next);
+  const colWidthsOnTake = () => {
+    const w: Partial<Record<LiveCol, string>> = {};
+    for (const c of ALL_COLS) {
+      const v = getColumnWidth(c.key);
+      if (v) w[c.key] = v;
+    }
+    return Object.keys(w).length ? w : undefined;
   };
-
-  const moveCol = (c: LiveCol, dir: -1 | 1) => {
-    const i = activeCols.indexOf(c);
-    if (i < 0) return;
-    const j = i + dir;
-    if (j < 0 || j >= activeCols.length) return;
-    const next = [...activeCols];
-    [next[i], next[j]] = [next[j], next[i]];
-    setActiveCols(next);
-    setLiveCols(event.sessionType, next);
-  };
-
-  const colControls = (
-    <div className="border-t border-border pt-3">
-      <button onClick={() => setShowCols(s => !s)} className="text-xs font-bold tracking-wider uppercase text-primary hover:opacity-80">
-        {showCols ? '▼' : '▶'} Columnas visibles · sesión: <span className="text-accent">{event.sessionType}</span> ({activeCols.length})
-      </button>
-      {showCols && (
-        <div className="mt-2 p-3 bg-background/50 border border-border space-y-2">
-          <p className="text-[11px] text-muted-foreground">Activá/ordená las columnas del overlay Live Timing.</p>
-          <div className="space-y-1">
-            {activeCols.map((c, i) => {
-              const def = ALL_COLS.find(x => x.key === c);
-              return (
-                <div key={c} className="flex items-center gap-2 text-xs bg-card px-2 py-1">
-                  <span className="text-muted-foreground w-5">{i + 1}.</span>
-                  <span className="flex-1">{def?.label ?? c}</span>
-                  <button onClick={() => moveCol(c, -1)} disabled={i === 0} className="px-1 hover:text-primary disabled:opacity-30">↑</button>
-                  <button onClick={() => moveCol(c, 1)} disabled={i === activeCols.length - 1} className="px-1 hover:text-primary disabled:opacity-30">↓</button>
-                  <button onClick={() => toggleCol(c)} className="px-2 text-rally-red hover:opacity-70">✕</button>
-                </div>
-              );
-            })}
-          </div>
-          <div className="pt-2 border-t border-border">
-            <Label className="text-[10px] text-muted-foreground">Agregar columna</Label>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {ALL_COLS.filter(c => !activeCols.includes(c.key)).map(c => (
-                <button key={c.key} onClick={() => toggleCol(c.key)} className="text-[10px] px-2 py-1 border border-border hover:bg-primary hover:text-primary-foreground transition-colors">
-                  + {c.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <TimingSyncPanel<CircuitTimingEntry, CircuitEntry>
@@ -148,6 +99,7 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
           currentLap: maxLap,
           totalLaps: maxLap,
           columns: getLiveCols(event.sessionType),
+          columnWidths: colWidthsOnTake(),
         });
       }}
       onSync={(rows, meta) => {
@@ -160,7 +112,6 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
         }
       }}
       buildRow={buildRow}
-      extraControls={colControls}
       extraPresetFields={{
         cols: (() => {
           const cols: Partial<Record<SessionKind, LiveCol[]>> = {};

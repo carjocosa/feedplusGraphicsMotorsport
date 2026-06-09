@@ -2,6 +2,7 @@ import type { LiveCol } from '@/components/graphics/circuit/CircuitLiveTiming';
 import type { SessionKind } from '@/types/circuit';
 
 const KEY = 'circuit-live-cols';
+const WIDTH_KEY = 'circuit-col-widths';
 
 export const ALL_COLS: { key: LiveCol; label: string }[] = [
   { key: 'position',   label: 'Posición' },
@@ -39,4 +40,20 @@ export function setLiveCols(session: SessionKind, cols: LiveCol[]) {
   const s = read();
   s[session] = cols;
   localStorage.setItem(KEY, JSON.stringify(s));
+}
+
+type WidthStore = Partial<Record<LiveCol, string>>;
+
+function readWidths(): WidthStore {
+  try { return JSON.parse(localStorage.getItem(WIDTH_KEY) || '{}'); } catch { return {}; }
+}
+
+export function getColumnWidth(col: LiveCol): string | undefined {
+  return readWidths()[col];
+}
+
+export function setColumnWidth(col: LiveCol, width: string) {
+  const w = readWidths();
+  w[col] = width;
+  localStorage.setItem(WIDTH_KEY, JSON.stringify(w));
 }

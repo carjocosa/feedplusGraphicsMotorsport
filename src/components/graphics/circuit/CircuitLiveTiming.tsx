@@ -37,14 +37,15 @@ interface Props {
   currentLap?: number;
   totalLaps?: number;
   columns?: LiveCol[];
+  columnWidths?: Partial<Record<LiveCol, string>>;
   onMouseDown?: (e: React.MouseEvent) => void;
 }
 
-const CircuitLiveTiming = ({ data, settings, title = 'TIEMPOS EN VIVO', currentLap, totalLaps, columns, onMouseDown }: Props) => {
+const CircuitLiveTiming = ({ data, settings, title = 'TIEMPOS EN VIVO', currentLap, totalLaps, columns, columnWidths, onMouseDown }: Props) => {
   const dur = animationDuration(settings);
   const radius = cornerRadius(settings);
   const cols: LiveCol[] = columns && columns.length ? columns : DEFAULT_COLS;
-  const gridTemplate = cols.map(c => COL_DEFS[c].width).join(' ');
+  const gridTemplate = cols.map(c => columnWidths?.[c] || COL_DEFS[c].width).join(' ');
 
   return (
     <div style={layoutStyle(settings, 'circuitTiming')} onMouseDown={onMouseDown}>

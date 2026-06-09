@@ -6,7 +6,7 @@ import GraphicControl from '@/components/control/GraphicControl';
 import CircuitEntryPicker from './CircuitEntryPicker';
 import TimingSyncPanel from './TimingSyncPanel';
 import type { CircuitTimingEntry, GuestLowerThirdData } from '@/types/circuit';
-import { ALL_COLS, getLiveCols, setLiveCols } from '@/lib/liveTimingColumns';
+import { ALL_COLS, getLiveCols, setLiveCols, getColumnWidth, setColumnWidth } from '@/lib/liveTimingColumns';
 import type { LiveCol } from '@/components/graphics/circuit/CircuitLiveTiming';
 
 interface Props {
@@ -39,6 +39,20 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
   useEffect(() => {
     setActiveCols(getLiveCols(event.sessionType));
   }, [event.sessionType]);
+
+  const [colWidths, setColWidths] = useState<Partial<Record<LiveCol, string>>>(() => {
+    const w: Partial<Record<LiveCol, string>> = {};
+    for (const c of ALL_COLS) {
+      const v = getColumnWidth(c.key);
+      if (v) w[c.key] = v;
+    }
+    return w;
+  });
+
+  const changeColWidth = (c: LiveCol, width: string) => {
+    setColWidths(prev => ({ ...prev, [c]: width }));
+    setColumnWidth(c, width);
+  };
 
   const toggleCol = (c: LiveCol) => {
     const next = activeCols.includes(c) ? activeCols.filter(x => x !== c) : [...activeCols, c];
@@ -230,6 +244,22 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
                 ))}
               </div>
             )}
+            <div className="pt-1 border-t border-border space-y-1">
+              <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">Anchos (px)</span>
+              {ALL_COLS.map(c => (
+                <div key={c.key} className="flex items-center gap-2 text-[11px]">
+                  <span className="w-16 truncate">{c.label}</span>
+                  <input
+                    type="text"
+                    value={colWidths[c.key] || ''}
+                    onChange={e => changeColWidth(c.key, e.target.value)}
+                    placeholder={c.key === 'driverName' || c.key === 'team' ? 'auto' : ''}
+                    className="w-16 h-6 px-1 text-[10px] font-mono bg-background border border-input text-right"
+                  />
+                  <span className="text-muted-foreground text-[10px]">px</span>
+                </div>
+              ))}
+            </div>
           </div>
         </details>
 
@@ -244,6 +274,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
             currentLap: event.currentLap,
             totalLaps: event.totalLaps,
             columns: activeCols,
+            columnWidths: colWidths,
           })}
           onClear={() => onClear('circuitTiming')}
           isLive={liveGraphics.has('circuitTiming')}
