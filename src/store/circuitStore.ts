@@ -215,6 +215,11 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     return { grid: g };
   }),
   setTiming: (t) => set((s) => {
+    const leaderLap = Math.max(0, ...t.map(r => r.lap ?? 0));
+    if (leaderLap > 0) {
+      s.event.currentLap = leaderLap;
+      s.event.totalLaps = leaderLap;
+    }
     persistRoomState(snapshot({ ...s, timing: t }));
     return { timing: t };
   }),

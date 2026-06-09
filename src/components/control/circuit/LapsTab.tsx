@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useCircuitStore } from '@/store/circuitStore';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,8 +22,16 @@ const SESSION_LABELS: Record<string, string> = {
   feature: 'Feature',
 };
 
+interface ColDef {
+  key: string;
+  label: string;
+  width: string;
+  render: (row: CircuitTimingEntry) => React.ReactNode;
+}
+
 const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const { timing, setTiming, driverLap, setDriverLap, event, setEvent, entries, categories, selectedCategory, setSelectedCategory } = useCircuitStore();
+  const [showPits, setShowPits] = useState(false);
 
   const filteredTiming = selectedCategory
     ? timing.filter(t => entries.some(e => e.carNumber === t.carNumber && e.category === selectedCategory))
@@ -61,6 +69,26 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
     ]);
   };
 
+  const cols: ColDef[] = [
+    { key: 'position', label: 'POS', width: '40px', render: (r) => <span className="text-xs text-center font-bold">{r.position}</span> },
+    { key: 'carNumber', label: 'Nº', width: '60px', render: (r) => <Input className="h-7 text-xs" value={r.carNumber} onChange={e => update(r.carNumber, { carNumber: e.target.value })} /> },
+    { key: 'driverName', label: 'Piloto', width: '1fr', render: (r) => <Input className="h-7 text-xs" value={r.driverName} onChange={e => update(r.carNumber, { driverName: e.target.value })} /> },
+    { key: 'team', label: 'Equipo', width: '1fr', render: (r) => <Input className="h-7 text-xs" value={r.team} onChange={e => update(r.carNumber, { team: e.target.value })} /> },
+    { key: 'lap', label: 'Vta', width: '70px', render: (r) => <Input className="h-7 text-xs" type="number" value={r.lap} onChange={e => update(r.carNumber, { lap: +e.target.value })} /> },
+    { key: 'pitStops', label: 'Pits', width: '70px', render: (r) => <Input className="h-7 text-xs" type="number" value={r.pitStops ?? 0} onChange={e => update(r.carNumber, { pitStops: +e.target.value })} /> },
+    { key: 'gap', label: 'Dif', width: '90px', render: (r) => <Input className="h-7 text-xs font-mono" value={r.gap} onChange={e => update(r.carNumber, { gap: e.target.value })} /> },
+    { key: 'lastLap', label: 'Últ', width: '90px', render: (r) => <Input className="h-7 text-xs font-mono" value={r.lastLap} onChange={e => update(r.carNumber, { lastLap: e.target.value })} /> },
+    { key: 'purple', label: '★', width: '50px', render: (r) => (
+      <button onClick={() => update(r.carNumber, { isPurple: !r.isPurple })}
+        className={`text-xs px-1 ${r.isPurple ? 'bg-purple-600 text-white' : 'bg-muted text-muted-foreground'}`}
+        title="Mejor vuelta de la sesión">★</button>
+    )},
+    { key: 'remove', label: '', width: '30px', render: (r) => <button onClick={() => remove(r.carNumber)} className="text-rally-red hover:opacity-70 text-xs">✕</button> },
+  ];
+
+  const visibleCols = cols.filter(c => c.key !== 'pitStops' || showPits);
+  const gridCols = visibleCols.map(c => c.width).join(' ');
+
   return (
     <div className="space-y-4">
       <TimingSyncPanel />
@@ -85,7 +113,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
             <Input type="number" value={event.currentLap} onChange={e => setEvent({ currentLap: +e.target.value })} />
           </div>
           <div>
-            <Label className="text-xs">Total vueltas</Label>
+            <Label className="text-xs">Total vueltas (líder)</Label>
             <Input type="number" value={event.totalLaps} onChange={e => setEvent({ totalLaps: +e.target.value })} />
           </div>
         </div>
@@ -94,8 +122,14 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
       <div className="p-4 border border-border bg-card space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Tiempos en Vivo</h3>
-          <div className="w-[280px]">
-            <CircuitEntryPicker label="" onPick={addFromPicker} />
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors select-none">
+              <input type="checkbox" checked={showPits} onChange={e => setShowPits(e.target.checked)} className="accent-primary" />
+              Pits
+            </label>
+            <div className="w-[220px]">
+              <CircuitEntryPicker label="" onPick={addFromPicker} />
+            </div>
           </div>
         </div>
 
@@ -125,29 +159,14 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           </div>
         )}
 
-        <div className="grid grid-cols-[40px_60px_1fr_1fr_70px_70px_90px_90px_50px_30px] gap-1 text-[10px] uppercase tracking-wider text-muted-foreground px-1">
-          <span>POS</span><span>Nº</span><span>Piloto</span><span>Equipo</span><span>Vta</span><span>Pits</span><span>Dif</span><span>Últ</span><span>★</span><span></span>
+        <div className="grid gap-1 text-[10px] uppercase tracking-wider text-muted-foreground px-1" style={{ gridTemplateColumns: gridCols }}>
+          {visibleCols.map(c => <span key={c.key}>{c.label}</span>)}
         </div>
 
         <div className="max-h-[360px] overflow-y-auto space-y-1">
           {filteredTiming.map((row) => (
-            <div key={row.carNumber} className="grid grid-cols-[40px_60px_1fr_1fr_70px_70px_90px_90px_50px_30px] gap-1 items-center">
-              <span className="text-xs text-center font-bold">{row.position}</span>
-              <Input className="h-7 text-xs" value={row.carNumber} onChange={e => update(row.carNumber, { carNumber: e.target.value })} />
-              <Input className="h-7 text-xs" value={row.driverName} onChange={e => update(row.carNumber, { driverName: e.target.value })} />
-              <Input className="h-7 text-xs" value={row.team} onChange={e => update(row.carNumber, { team: e.target.value })} />
-              <Input className="h-7 text-xs" type="number" value={row.lap} onChange={e => update(row.carNumber, { lap: +e.target.value })} />
-              <Input className="h-7 text-xs" type="number" value={row.pitStops ?? 0} onChange={e => update(row.carNumber, { pitStops: +e.target.value })} />
-              <Input className="h-7 text-xs font-mono" value={row.gap} onChange={e => update(row.carNumber, { gap: e.target.value })} />
-              <Input className="h-7 text-xs font-mono" value={row.lastLap} onChange={e => update(row.carNumber, { lastLap: e.target.value })} />
-              <button
-                onClick={() => update(row.carNumber, { isPurple: !row.isPurple })}
-                className={`text-xs px-1 ${row.isPurple ? 'bg-purple-600 text-white' : 'bg-muted text-muted-foreground'}`}
-                title="Mejor vuelta de la sesión"
-              >
-                ★
-              </button>
-              <button onClick={() => remove(row.carNumber)} className="text-rally-red hover:opacity-70 text-xs">✕</button>
+            <div key={row.carNumber} className="grid gap-1 items-center" style={{ gridTemplateColumns: gridCols }}>
+              {visibleCols.map(c => <span key={c.key}>{c.render(row)}</span>)}
             </div>
           ))}
         </div>
