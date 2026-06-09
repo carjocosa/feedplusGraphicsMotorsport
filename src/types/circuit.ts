@@ -39,6 +39,7 @@ export interface GridSlot {
   qualifyingTime?: string;
   gap?: string;
   photoUrl?: string;
+  category?: string;
 }
 
 export interface CircuitTimingEntry {

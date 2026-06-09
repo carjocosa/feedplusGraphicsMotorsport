@@ -1,9 +1,9 @@
+import { useCallback } from 'react';
 import { useCircuitStore } from '@/store/circuitStore';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import GraphicControl from '@/components/control/GraphicControl';
 import CircuitEntryPicker from './CircuitEntryPicker';
-import type { GridSlot } from '@/types/circuit';
 
 interface Props {
   onTake: (id: string, data: any) => void;
@@ -14,19 +14,23 @@ interface Props {
 const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const { grid, setGrid, event, setEvent, entries, categories, selectedCategory, setSelectedCategory } = useCircuitStore();
 
+  const filteredGrid = selectedCategory
+    ? grid.filter(s => s.category === selectedCategory)
+    : grid;
+
   const filteredEntries = selectedCategory
     ? entries.filter(e => e.category === selectedCategory)
     : entries;
 
-  const update = (i: number, patch: Partial<GridSlot>) => {
-    const next = [...grid];
-    next[i] = { ...next[i], ...patch };
-    setGrid(next);
-  };
+  const update = useCallback((position: number, patch: Record<string, string | undefined>) => {
+    setGrid(grid.map(s => s.position === position ? { ...s, ...patch } : s));
+  }, [grid, setGrid]);
 
-  const remove = (i: number) => {
-    setGrid(grid.filter((_, idx) => idx !== i).map((s, idx) => ({ ...s, position: idx + 1 })));
-  };
+  const remove = useCallback((position: number) => {
+    setGrid(
+      grid.filter(s => s.position !== position).map((s, i) => ({ ...s, position: i + 1 }))
+    );
+  }, [grid, setGrid]);
 
   const buildFromQualifying = () => {
     const sorted = [...filteredEntries]
@@ -40,6 +44,7 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
       qualifyingTime: e.qualifyingTime,
       gap: i === 0 ? 'POLE' : `+${(0.05 + i * 0.1).toFixed(3)}`,
       photoUrl: e.photoUrl,
+      category: e.category,
     })));
   };
 
@@ -54,6 +59,7 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
         qualifyingTime: e.qualifyingTime,
         gap: grid.length === 0 ? 'POLE' : '',
         photoUrl: e.photoUrl,
+        category: e.category,
       },
     ]);
   };
@@ -118,15 +124,15 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
         )}
 
         <div className="max-h-[420px] overflow-y-auto space-y-1">
-          {grid.map((slot, i) => (
-            <div key={i} className="grid grid-cols-[40px_60px_1fr_1fr_90px_90px_30px] gap-1 items-center text-xs">
+          {filteredGrid.map((slot) => (
+            <div key={slot.position} className="grid grid-cols-[40px_60px_1fr_1fr_90px_90px_30px] gap-1 items-center text-xs">
               <span className="text-center font-bold text-accent">P{slot.position}</span>
-              <Input className="h-7 text-xs" value={slot.carNumber} onChange={e => update(i, { carNumber: e.target.value })} />
-              <Input className="h-7 text-xs" value={slot.driverName} onChange={e => update(i, { driverName: e.target.value })} />
-              <Input className="h-7 text-xs" value={slot.team} onChange={e => update(i, { team: e.target.value })} />
-              <Input className="h-7 text-xs font-mono" value={slot.qualifyingTime ?? ''} onChange={e => update(i, { qualifyingTime: e.target.value })} placeholder="0:48.1" />
-              <Input className="h-7 text-xs font-mono" value={slot.gap ?? ''} onChange={e => update(i, { gap: e.target.value })} placeholder="+0.123" />
-              <button onClick={() => remove(i)} className="text-rally-red hover:opacity-70">✕</button>
+              <Input className="h-7 text-xs" value={slot.carNumber} onChange={e => update(slot.position, { carNumber: e.target.value })} />
+              <Input className="h-7 text-xs" value={slot.driverName} onChange={e => update(slot.position, { driverName: e.target.value })} />
+              <Input className="h-7 text-xs" value={slot.team} onChange={e => update(slot.position, { team: e.target.value })} />
+              <Input className="h-7 text-xs font-mono" value={slot.qualifyingTime ?? ''} onChange={e => update(slot.position, { qualifyingTime: e.target.value })} placeholder="0:48.1" />
+              <Input className="h-7 text-xs font-mono" value={slot.gap ?? ''} onChange={e => update(slot.position, { gap: e.target.value })} placeholder="+0.123" />
+              <button onClick={() => remove(slot.position)} className="text-rally-red hover:opacity-70">✕</button>
             </div>
           ))}
         </div>
@@ -134,7 +140,7 @@ const GridTab = ({ onTake, onClear, liveGraphics }: Props) => {
         <GraphicControl
           label="Parrilla de Salida"
           graphicId={'startGrid' as any}
-          onTake={() => onTake('startGrid', grid)}
+          onTake={() => onTake('startGrid', filteredGrid)}
           onClear={() => onClear('startGrid')}
           isLive={liveGraphics.has('startGrid')}
         />
