@@ -81,6 +81,7 @@ const CircuitScorebug = ({ data, settings, onMouseDown }: Props) => {
         </div>
 
         {/* Lap counter */}
+        {(data.showLap !== false) && (
         <div
           className="flex items-center justify-center px-6 -ml-2"
           style={{
@@ -107,6 +108,7 @@ const CircuitScorebug = ({ data, settings, onMouseDown }: Props) => {
             </div>
           </div>
         </div>
+        )}
       </div>
     </motion.div>
     </div>

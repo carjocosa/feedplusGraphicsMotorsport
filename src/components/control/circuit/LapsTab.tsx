@@ -279,10 +279,16 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           onClear={() => onClear('circuitTiming')}
           isLive={liveGraphics.has('circuitTiming')}
         />
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors select-none">
+            <input type="checkbox" checked={event.showLap !== false} onChange={e => setEvent({ showLap: e.target.checked })} className="accent-primary" />
+            Mostrar vueltas
+          </label>
+        </div>
         <GraphicControl
           label="Scorebug (serie / circuito / vuelta)"
           graphicId={'circuitScorebug' as any}
-          onTake={() => onTake('circuitScorebug', event)}
+          onTake={() => onTake('circuitScorebug', { ...event, showLap: event.showLap !== false })}
           onClear={() => onClear('circuitScorebug')}
           isLive={liveGraphics.has('circuitScorebug')}
         />

@@ -149,6 +149,7 @@ export interface CircuitEventData {
   sessionType: SessionKind;
   totalLaps: number;
   currentLap: number;
+  showLap?: boolean;
 }
 
 export type CircuitGraphicType =

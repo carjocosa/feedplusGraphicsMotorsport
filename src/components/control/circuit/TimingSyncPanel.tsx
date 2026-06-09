@@ -85,9 +85,10 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
     return Object.keys(w).length ? w : undefined;
   };
 
-  const normalizeLap = (rows: CircuitTimingEntry[]): CircuitTimingEntry[] => {
+  const normalizeLap = (rows: CircuitTimingEntry[], fallbackLap?: number): CircuitTimingEntry[] => {
     const maxLap = Math.max(...rows.map(r => r.lap), 0);
-    return maxLap > 0 ? rows.map(r => ({ ...r, lap: maxLap })) : rows;
+    const lap = maxLap > 0 ? maxLap : (fallbackLap ?? 0);
+    return lap > 0 ? rows.map(r => ({ ...r, lap })) : rows;
   };
 
   return (
@@ -99,7 +100,7 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
       defaultInterval={12}
       masterEntries={entries}
       onAutoSync={(rows) => {
-        const normalized = normalizeLap(rows);
+        const normalized = normalizeLap(rows, event.currentLap);
         const maxLap = Math.max(...normalized.map(r => r.lap), 0);
         onTake?.('circuitTiming', {
           rows: normalized,
@@ -110,7 +111,7 @@ const CircuitTimingSyncPanel = ({ onTake }: Props) => {
         });
       }}
       onSync={(rows, meta) => {
-        const normalized = normalizeLap(rows);
+        const normalized = normalizeLap(rows, event.currentLap);
         setTiming(normalized);
         if (meta?.currentLap || meta?.totalLaps) {
           setEvent({
