@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '@/integrations/supabase/client';
-import { loadCircuitData, persistCircuitData, subscribeCircuitData } from '@/lib/supabasePersistence';
+import { loadRoomState, persistRoomState, subscribeRoomState } from '@/lib/supabasePersistence';
 import type {
   CircuitEntry,
   GridSlot,
@@ -15,7 +14,7 @@ import type {
 } from '@/types/circuit';
 
 interface CircuitStore {
-  _hydrated: boolean;
+  _initialized: boolean;
   event: CircuitEventData;
   entries: CircuitEntry[];
   categories: Category[];
@@ -29,7 +28,7 @@ interface CircuitStore {
   podium: PodiumData;
   finalResults: FinalResultsData;
 
-  hydrate: () => Promise<void>;
+  init: () => Promise<void>;
   setEvent: (d: Partial<CircuitEventData>) => void;
   setEntries: (e: CircuitEntry[]) => void;
   addEntry: (e: CircuitEntry) => void;
@@ -51,11 +50,32 @@ interface CircuitStore {
   setFinalResults: (d: Partial<FinalResultsData>) => void;
 }
 
-function persist(s: Pick<CircuitStore, 'entries' | 'categories'>) {
-  persistCircuitData(
-    { entries: s.entries, categories: s.categories },
-    supabase !== null,
-  );
+function snapshot(s: CircuitStore) {
+  return {
+    event: s.event,
+    entries: s.entries,
+    categories: s.categories,
+    grid: s.grid,
+    timing: s.timing,
+    driverLap: s.driverLap,
+    raceFlag: s.raceFlag,
+    pitEvents: s.pitEvents,
+    podium: s.podium,
+    finalResults: s.finalResults,
+  };
+}
+
+function apply(s: CircuitStore, data: Record<string, unknown>) {
+  if (data.event) s.event = data.event as CircuitEventData;
+  if (data.entries) s.entries = data.entries as CircuitEntry[];
+  if (data.categories) s.categories = data.categories as Category[];
+  if (data.grid) s.grid = data.grid as GridSlot[];
+  if (data.timing) s.timing = data.timing as CircuitTimingEntry[];
+  if (data.driverLap) s.driverLap = data.driverLap as DriverLapData;
+  if (data.raceFlag) s.raceFlag = data.raceFlag as RaceFlagData;
+  if (data.pitEvents) s.pitEvents = data.pitEvents as PitEvent[];
+  if (data.podium) s.podium = data.podium as PodiumData;
+  if (data.finalResults) s.finalResults = data.finalResults as FinalResultsData;
 }
 
 const demoEntries: CircuitEntry[] = [
@@ -77,15 +97,8 @@ const demoCategories: Category[] = [
 ];
 
 export const useCircuitStore = create<CircuitStore>((set, get) => ({
-  _hydrated: false,
-  event: {
-    series: 'Karting Nacional',
-    round: 'Fecha 4',
-    circuit: 'Zárate Karting Club',
-    sessionType: 'race',
-    totalLaps: 22,
-    currentLap: 9,
-  },
+  _initialized: false,
+  event: { series: 'Karting Nacional', round: 'Fecha 4', circuit: 'Zárate Karting Club', sessionType: 'race', totalLaps: 22, currentLap: 9 },
   entries: demoEntries,
   categories: demoCategories,
   selectedCategory: null,
@@ -108,105 +121,83 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     { position: 7, carNumber: '5',  driverName: 'Y. Tanabe',    team: 'OK Japan',      lap: 9, gap: '+7.221',   interval: '+1.341',  lastLap: '0:49.103', bestLap: '0:48.901', pitStops: 1, status: 'pit' },
     { position: 8, carNumber: '17', driverName: 'D. Méndez',    team: 'Energy Corse',  lap: 9, gap: '+8.812',   interval: '+1.591',  lastLap: '0:49.222', bestLap: '0:49.011', pitStops: 0, status: 'racing' },
   ],
-  driverLap: {
-    carNumber: '7',
-    driverName: 'Mateo Vázquez',
-    team: 'TGR Karting',
-    country: '🇦🇷',
-    position: 1,
-    lap: 9,
-    totalLaps: 22,
-    sector: 2,
-    sectorTime: '15.482',
-    lastLap: '0:48.531',
-    bestLap: '0:48.402',
-    gapToLeader: 'LEADER',
-  },
+  driverLap: { carNumber: '7', driverName: 'Mateo Vázquez', team: 'TGR Karting', country: '🇦🇷', position: 1, lap: 9, totalLaps: 22, sector: 2, sectorTime: '15.482', lastLap: '0:48.531', bestLap: '0:48.402', gapToLeader: 'LEADER' },
   raceFlag: { flag: 'green', message: '' },
   pitEvents: [
     { id: 'p1', carNumber: '5',  driverName: 'Y. Tanabe', team: 'OK Japan', pitTime: '23.4s', positionBefore: 5, positionAfter: 7, status: 'out', lap: 8 },
     { id: 'p2', carNumber: '17', driverName: 'D. Méndez', team: 'Energy',   pitTime: '24.1s', positionBefore: 6, positionAfter: 8, status: 'out', lap: 7 },
   ],
-  podium: {
-    series: 'Karting Nacional',
-    raceName: 'Fecha 4 — Zárate',
-    podium: [
-      { position: 1, carNumber: '7',  driverName: 'M. Vázquez',  team: 'TGR Karting',   country: '🇦🇷', totalTime: '18:42.331', bestLap: '0:48.402' },
-      { position: 2, carNumber: '12', driverName: 'L. Romero',   team: 'Croc Promotor', country: '🇦🇷', totalTime: '+1.842',    bestLap: '0:48.510' },
-      { position: 3, carNumber: '3',  driverName: 'I. Castelli', team: 'Birel ART',     country: '🇮🇹', totalTime: '+3.105',    bestLap: '0:48.580' },
-    ],
-  },
-  finalResults: {
-    series: 'Karting Nacional',
-    raceName: 'Fecha 4 — Zárate',
-    totalLaps: 22,
-    results: [
-      { position: 1, carNumber: '7',  driverName: 'M. Vázquez',  team: 'TGR Karting',   laps: 22, totalTime: '18:42.331', bestLap: '0:48.402', status: 'finished' },
-      { position: 2, carNumber: '12', driverName: 'L. Romero',   team: 'Croc Promotor', laps: 22, totalTime: '+1.842',    bestLap: '0:48.510', status: 'finished' },
-      { position: 3, carNumber: '3',  driverName: 'I. Castelli', team: 'Birel ART',     laps: 22, totalTime: '+3.105',    bestLap: '0:48.580', status: 'finished' },
-      { position: 4, carNumber: '21', driverName: 'B. Salvi',    team: 'KSB',           laps: 22, totalTime: '+5.221',    bestLap: '0:48.620', status: 'finished' },
-      { position: 5, carNumber: '44', driverName: 'T. Aguilera', team: 'Praga',         laps: 22, totalTime: '+7.844',    bestLap: '0:48.701', status: 'finished' },
-      { position: 6, carNumber: '88', driverName: 'H. Lambert',  team: 'Sodi',          laps: 22, totalTime: '+9.103',    bestLap: '0:48.812', status: 'finished' },
-      { position: 7, carNumber: '17', driverName: 'D. Méndez',   team: 'Energy',        laps: 22, totalTime: '+12.501',   bestLap: '0:49.011', status: 'finished' },
-      { position: 8, carNumber: '5',  driverName: 'Y. Tanabe',   team: 'OK Japan',      laps: 21, totalTime: '+1L',       bestLap: '0:48.901', status: 'finished' },
-    ],
-  },
+  podium: { series: 'Karting Nacional', raceName: 'Fecha 4 — Zárate', podium: [
+    { position: 1, carNumber: '7',  driverName: 'M. Vázquez',  team: 'TGR Karting',   country: '🇦🇷', totalTime: '18:42.331', bestLap: '0:48.402' },
+    { position: 2, carNumber: '12', driverName: 'L. Romero',   team: 'Croc Promotor', country: '🇦🇷', totalTime: '+1.842',    bestLap: '0:48.510' },
+    { position: 3, carNumber: '3',  driverName: 'I. Castelli', team: 'Birel ART',     country: '🇮🇹', totalTime: '+3.105',    bestLap: '0:48.580' },
+  ]},
+  finalResults: { series: 'Karting Nacional', raceName: 'Fecha 4 — Zárate', totalLaps: 22, results: [
+    { position: 1, carNumber: '7',  driverName: 'M. Vázquez',  team: 'TGR Karting',   laps: 22, totalTime: '18:42.331', bestLap: '0:48.402', status: 'finished' },
+    { position: 2, carNumber: '12', driverName: 'L. Romero',   team: 'Croc Promotor', laps: 22, totalTime: '+1.842',    bestLap: '0:48.510', status: 'finished' },
+    { position: 3, carNumber: '3',  driverName: 'I. Castelli', team: 'Birel ART',     laps: 22, totalTime: '+3.105',    bestLap: '0:48.580', status: 'finished' },
+    { position: 4, carNumber: '21', driverName: 'B. Salvi',    team: 'KSB',           laps: 22, totalTime: '+5.221',    bestLap: '0:48.620', status: 'finished' },
+    { position: 5, carNumber: '44', driverName: 'T. Aguilera', team: 'Praga',         laps: 22, totalTime: '+7.844',    bestLap: '0:48.701', status: 'finished' },
+    { position: 6, carNumber: '88', driverName: 'H. Lambert',  team: 'Sodi',          laps: 22, totalTime: '+9.103',    bestLap: '0:48.812', status: 'finished' },
+    { position: 7, carNumber: '17', driverName: 'D. Méndez',   team: 'Energy',        laps: 22, totalTime: '+12.501',   bestLap: '0:49.011', status: 'finished' },
+    { position: 8, carNumber: '5',  driverName: 'Y. Tanabe',   team: 'OK Japan',      laps: 21, totalTime: '+1L',       bestLap: '0:48.901', status: 'finished' },
+  ]},
 
-  hydrate: async () => {
-    if (get()._hydrated) return;
-    const data = await loadCircuitData();
-    if (data.entries.length || data.categories.length) {
-      set({ entries: data.entries, categories: data.categories, _hydrated: true });
+  init: async () => {
+    if (get()._initialized) return;
+    const data = await loadRoomState();
+    if (data && Object.keys(data).length > 1) {
+      set((s) => { apply(s, data as unknown as Record<string, unknown>); return { ...s, _initialized: true }; });
     } else {
-      set({ _hydrated: true });
+      set({ _initialized: true });
     }
-    // Subscribe to remote changes
-    subscribeCircuitData((remote) => {
-      set({ entries: remote.entries, categories: remote.categories });
+    subscribeRoomState((remote) => {
+      set((s) => { apply(s, remote as unknown as Record<string, unknown>); return { ...s }; });
     });
   },
 
-  setEvent: (d) => set((s) => ({ event: { ...s.event, ...d } })),
+  setEvent: (d) => set((s) => {
+    const event = { ...s.event, ...d };
+    persistRoomState(snapshot({ ...s, event }));
+    return { event };
+  }),
   setEntries: (e) => set((s) => {
-    persist({ entries: e, categories: s.categories });
+    persistRoomState(snapshot({ ...s, entries: e }));
     return { entries: e };
   }),
   addEntry: (e) => set((s) => {
     const entries = [...s.entries, e];
-    persist({ entries, categories: s.categories });
+    persistRoomState(snapshot({ ...s, entries }));
     return { entries };
   }),
   updateEntry: (id, e) => set((s) => {
     const entries = s.entries.map(x => x.id === id ? { ...x, ...e } : x);
-    persist({ entries, categories: s.categories });
+    persistRoomState(snapshot({ ...s, entries }));
     return { entries };
   }),
   removeEntry: (id) => set((s) => {
     const entries = s.entries.filter(x => x.id !== id);
-    persist({ entries, categories: s.categories });
-    return {
-      entries,
-      selectedEntryId: s.selectedEntryId === id ? null : s.selectedEntryId,
-    };
+    persistRoomState(snapshot({ ...s, entries }));
+    return { entries, selectedEntryId: s.selectedEntryId === id ? null : s.selectedEntryId };
   }),
   setCategories: (c) => set((s) => {
-    persist({ entries: s.entries, categories: c });
+    persistRoomState(snapshot({ ...s, categories: c }));
     return { categories: c };
   }),
   addCategory: (c) => set((s) => {
     const categories = [...s.categories, c];
-    persist({ entries: s.entries, categories });
+    persistRoomState(snapshot({ ...s, categories }));
     return { categories };
   }),
   updateCategory: (id, c) => set((s) => {
     const categories = s.categories.map(x => x.id === id ? { ...x, ...c } : x);
-    persist({ entries: s.entries, categories });
+    persistRoomState(snapshot({ ...s, categories }));
     return { categories };
   }),
   removeCategory: (id) => set((s) => {
     const categories = s.categories.filter(x => x.id !== id);
     const entries = s.entries.map(e => e.category === id ? { ...e, category: '' } : e);
-    persist({ entries, categories });
+    persistRoomState(snapshot({ ...s, categories, entries }));
     return { categories, entries, selectedCategory: s.selectedCategory === id ? null : s.selectedCategory };
   }),
   setSelectedCategory: (c) => set({ selectedCategory: c }),
@@ -216,21 +207,44 @@ export const useCircuitStore = create<CircuitStore>((set, get) => ({
     if (!e) return { selectedEntryId: id };
     return {
       selectedEntryId: id,
-      driverLap: {
-        ...s.driverLap,
-        carNumber: e.carNumber,
-        driverName: e.driverName,
-        team: e.team,
-        country: e.country,
-      },
+      driverLap: { ...s.driverLap, carNumber: e.carNumber, driverName: e.driverName, team: e.team, country: e.country },
     };
   }),
-  setGrid: (g) => set({ grid: g }),
-  setTiming: (t) => set({ timing: t }),
-  setDriverLap: (d) => set((s) => ({ driverLap: { ...s.driverLap, ...d } })),
-  setRaceFlag: (d) => set((s) => ({ raceFlag: { ...s.raceFlag, ...d } })),
-  setPitEvents: (p) => set({ pitEvents: p }),
-  addPitEvent: (p) => set((s) => ({ pitEvents: [p, ...s.pitEvents].slice(0, 12) })),
-  setPodium: (d) => set((s) => ({ podium: { ...s.podium, ...d } })),
-  setFinalResults: (d) => set((s) => ({ finalResults: { ...s.finalResults, ...d } })),
+  setGrid: (g) => set((s) => {
+    persistRoomState(snapshot({ ...s, grid: g }));
+    return { grid: g };
+  }),
+  setTiming: (t) => set((s) => {
+    persistRoomState(snapshot({ ...s, timing: t }));
+    return { timing: t };
+  }),
+  setDriverLap: (d) => set((s) => {
+    const driverLap = { ...s.driverLap, ...d };
+    persistRoomState(snapshot({ ...s, driverLap }));
+    return { driverLap };
+  }),
+  setRaceFlag: (d) => set((s) => {
+    const raceFlag = { ...s.raceFlag, ...d };
+    persistRoomState(snapshot({ ...s, raceFlag }));
+    return { raceFlag };
+  }),
+  setPitEvents: (p) => set((s) => {
+    persistRoomState(snapshot({ ...s, pitEvents: p }));
+    return { pitEvents: p };
+  }),
+  addPitEvent: (p) => set((s) => {
+    const pitEvents = [p, ...s.pitEvents].slice(0, 12);
+    persistRoomState(snapshot({ ...s, pitEvents }));
+    return { pitEvents };
+  }),
+  setPodium: (d) => set((s) => {
+    const podium = { ...s.podium, ...d };
+    persistRoomState(snapshot({ ...s, podium }));
+    return { podium };
+  }),
+  setFinalResults: (d) => set((s) => {
+    const finalResults = { ...s.finalResults, ...d };
+    persistRoomState(snapshot({ ...s, finalResults }));
+    return { finalResults };
+  }),
 }));

@@ -36,7 +36,7 @@ function resizeImage(file: File, maxW: number, maxH: number): Promise<string> {
 }
 
 const CircuitEntriesTab = () => {
-  const { entries, setEntries, addEntry, updateEntry, removeEntry, categories, setCategories, addCategory, updateCategory, removeCategory, hydrate } = useCircuitStore();
+  const { entries, setEntries, addEntry, updateEntry, removeEntry, categories, setCategories, addCategory, updateCategory, removeCategory, init } = useCircuitStore();
   const [csvText, setCsvText] = useState('');
   const [showCatEditor, setShowCatEditor] = useState(false);
   const [catName, setCatName] = useState('');
@@ -44,7 +44,7 @@ const CircuitEntriesTab = () => {
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  useEffect(() => { hydrate(); }, [hydrate]);
+  useEffect(() => { init(); }, [init]);
 
   const importCSV = () => {
     const lines = csvText.trim().split('\n').filter(l => l.trim());
