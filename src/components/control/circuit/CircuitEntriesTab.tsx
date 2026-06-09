@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCircuitStore } from '@/store/circuitStore';
 import { Input } from '@/components/ui/input';
 import type { CircuitEntry, Category } from '@/types/circuit';
@@ -36,13 +36,15 @@ function resizeImage(file: File, maxW: number, maxH: number): Promise<string> {
 }
 
 const CircuitEntriesTab = () => {
-  const { entries, setEntries, addEntry, updateEntry, removeEntry, categories, setCategories, addCategory, updateCategory, removeCategory } = useCircuitStore();
+  const { entries, setEntries, addEntry, updateEntry, removeEntry, categories, setCategories, addCategory, updateCategory, removeCategory, hydrate } = useCircuitStore();
   const [csvText, setCsvText] = useState('');
   const [showCatEditor, setShowCatEditor] = useState(false);
   const [catName, setCatName] = useState('');
   const [catColor, setCatColor] = useState('#FF6B00');
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  useEffect(() => { hydrate(); }, [hydrate]);
 
   const importCSV = () => {
     const lines = csvText.trim().split('\n').filter(l => l.trim());

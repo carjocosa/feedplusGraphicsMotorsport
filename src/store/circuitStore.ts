@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { supabase } from '@/integrations/supabase/client';
+import { loadCircuitData, persistCircuitData, subscribeCircuitData } from '@/lib/supabasePersistence';
 import type {
   CircuitEntry,
   GridSlot,
@@ -12,9 +14,8 @@ import type {
   Category,
 } from '@/types/circuit';
 
-const STORAGE_KEY = 'feedplus-circuit';
-
 interface CircuitStore {
+  _hydrated: boolean;
   event: CircuitEventData;
   entries: CircuitEntry[];
   categories: Category[];
@@ -28,6 +29,7 @@ interface CircuitStore {
   podium: PodiumData;
   finalResults: FinalResultsData;
 
+  hydrate: () => Promise<void>;
   setEvent: (d: Partial<CircuitEventData>) => void;
   setEntries: (e: CircuitEntry[]) => void;
   addEntry: (e: CircuitEntry) => void;
@@ -49,30 +51,12 @@ interface CircuitStore {
   setFinalResults: (d: Partial<FinalResultsData>) => void;
 }
 
-function loadPersisted() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') return parsed;
-  } catch { /* ignore */ }
-  return null;
+function persist(s: Pick<CircuitStore, 'entries' | 'categories'>) {
+  persistCircuitData(
+    { entries: s.entries, categories: s.categories },
+    supabase !== null,
+  );
 }
-
-function persist(s: Partial<Pick<CircuitStore, 'entries' | 'categories'>>) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch { /* ignore quota */ }
-}
-
-const persisted = loadPersisted();
-
-const demoCategories: Category[] = [
-  { id: 'cat-kz', name: 'KZ', color: '#FF6B00' },
-  { id: 'cat-rotax', name: 'Rotax', color: '#2563EB' },
-  { id: 'cat-junior', name: 'Junior', color: '#16A34A' },
-  { id: 'cat-cadete', name: 'Cadete', color: '#A855F7' },
-];
 
 const demoEntries: CircuitEntry[] = [
   { id: 'k1', carNumber: '7',  driverName: 'Mateo Vázquez',   shortName: 'VAZ', country: '🇦🇷', team: 'TGR Karting',   car: 'Tony Kart / Vortex', category: 'KZ',  qualifyingTime: '0:48.124' },
@@ -85,7 +69,15 @@ const demoEntries: CircuitEntry[] = [
   { id: 'k8', carNumber: '17', driverName: 'Diego Méndez',    shortName: 'MEN', country: '🇲🇽', team: 'Energy Corse',   car: 'Energy / TM',        category: 'Junior',  qualifyingTime: '0:48.733' },
 ];
 
-export const useCircuitStore = create<CircuitStore>((set) => ({
+const demoCategories: Category[] = [
+  { id: 'cat-kz', name: 'KZ', color: '#FF6B00' },
+  { id: 'cat-rotax', name: 'Rotax', color: '#2563EB' },
+  { id: 'cat-junior', name: 'Junior', color: '#16A34A' },
+  { id: 'cat-cadete', name: 'Cadete', color: '#A855F7' },
+];
+
+export const useCircuitStore = create<CircuitStore>((set, get) => ({
+  _hydrated: false,
   event: {
     series: 'Karting Nacional',
     round: 'Fecha 4',
@@ -94,11 +86,11 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
     totalLaps: 22,
     currentLap: 9,
   },
-  entries: persisted?.entries ?? demoEntries,
-  categories: persisted?.categories ?? demoCategories,
+  entries: demoEntries,
+  categories: demoCategories,
   selectedCategory: null,
   selectedEntryId: 'k1',
-  grid: (persisted?.entries ?? demoEntries).map((e: CircuitEntry, i: number) => ({
+  grid: demoEntries.map((e, i) => ({
     position: i + 1,
     carNumber: e.carNumber,
     driverName: e.driverName,
@@ -158,6 +150,20 @@ export const useCircuitStore = create<CircuitStore>((set) => ({
       { position: 7, carNumber: '17', driverName: 'D. Méndez',   team: 'Energy',        laps: 22, totalTime: '+12.501',   bestLap: '0:49.011', status: 'finished' },
       { position: 8, carNumber: '5',  driverName: 'Y. Tanabe',   team: 'OK Japan',      laps: 21, totalTime: '+1L',       bestLap: '0:48.901', status: 'finished' },
     ],
+  },
+
+  hydrate: async () => {
+    if (get()._hydrated) return;
+    const data = await loadCircuitData();
+    if (data.entries.length || data.categories.length) {
+      set({ entries: data.entries, categories: data.categories, _hydrated: true });
+    } else {
+      set({ _hydrated: true });
+    }
+    // Subscribe to remote changes
+    subscribeCircuitData((remote) => {
+      set({ entries: remote.entries, categories: remote.categories });
+    });
   },
 
   setEvent: (d) => set((s) => ({ event: { ...s.event, ...d } })),
