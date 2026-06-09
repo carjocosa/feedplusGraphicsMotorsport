@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useCircuitStore } from '@/store/circuitStore';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,14 +29,36 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
     ? timing.filter(t => entries.some(e => e.carNumber === t.carNumber && e.category === selectedCategory))
     : timing;
 
-  const update = (i: number, patch: Partial<CircuitTimingEntry>) => {
+  const update = useCallback((carNumber: string, patch: Partial<CircuitTimingEntry>) => {
+    const idx = timing.findIndex(t => t.carNumber === carNumber);
+    if (idx === -1) return;
     const next = [...timing];
-    next[i] = { ...next[i], ...patch };
+    next[idx] = { ...next[idx], ...patch };
     setTiming(next);
-  };
+  }, [timing, setTiming]);
 
-  const remove = (i: number) => {
-    setTiming(timing.filter((_, idx) => idx !== i).map((r, idx) => ({ ...r, position: idx + 1 })));
+  const remove = useCallback((carNumber: string) => {
+    setTiming(timing.filter(t => t.carNumber !== carNumber).map((r, i) => ({ ...r, position: i + 1 })));
+  }, [timing, setTiming]);
+
+  const addFromPicker = (e: typeof entries[0]) => {
+    setTiming([
+      ...timing,
+      {
+        position: timing.length + 1,
+        carNumber: e.carNumber,
+        driverName: e.driverName,
+        team: e.team,
+        lap: event.currentLap,
+        gap: timing.length === 0 ? 'LEADER' : '',
+        interval: '',
+        lastLap: '',
+        bestLap: '',
+        pitStops: 0,
+        status: 'racing',
+        photoUrl: e.photoUrl || undefined,
+      },
+    ]);
   };
 
   return (
@@ -72,32 +95,10 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Tiempos en Vivo</h3>
           <div className="w-[280px]">
-            <CircuitEntryPicker
-              label=""
-              onPick={(e) =>
-                setTiming([
-                  ...timing,
-                  {
-                    position: timing.length + 1,
-                    carNumber: e.carNumber,
-                    driverName: e.driverName,
-                    team: e.team,
-                    lap: event.currentLap,
-                    gap: timing.length === 0 ? 'LEADER' : '',
-                    interval: '',
-                    lastLap: '',
-                    bestLap: '',
-                    pitStops: 0,
-                    status: 'racing',
-                    photoUrl: e.photoUrl || undefined,
-                  },
-                ])
-              }
-            />
+            <CircuitEntryPicker label="" onPick={addFromPicker} />
           </div>
         </div>
 
-        {/* Category filter */}
         {categories.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Filtrar:</span>
@@ -129,24 +130,24 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
         </div>
 
         <div className="max-h-[360px] overflow-y-auto space-y-1">
-          {filteredTiming.map((row, i) => (
-            <div key={i} className="grid grid-cols-[40px_60px_1fr_1fr_70px_70px_90px_90px_50px_30px] gap-1 items-center">
+          {filteredTiming.map((row) => (
+            <div key={row.carNumber} className="grid grid-cols-[40px_60px_1fr_1fr_70px_70px_90px_90px_50px_30px] gap-1 items-center">
               <span className="text-xs text-center font-bold">{row.position}</span>
-              <Input className="h-7 text-xs" value={row.carNumber} onChange={e => update(i, { carNumber: e.target.value })} />
-              <Input className="h-7 text-xs" value={row.driverName} onChange={e => update(i, { driverName: e.target.value })} />
-              <Input className="h-7 text-xs" value={row.team} onChange={e => update(i, { team: e.target.value })} />
-              <Input className="h-7 text-xs" type="number" value={row.lap} onChange={e => update(i, { lap: +e.target.value })} />
-              <Input className="h-7 text-xs" type="number" value={row.pitStops ?? 0} onChange={e => update(i, { pitStops: +e.target.value })} />
-              <Input className="h-7 text-xs font-mono" value={row.gap} onChange={e => update(i, { gap: e.target.value })} />
-              <Input className="h-7 text-xs font-mono" value={row.lastLap} onChange={e => update(i, { lastLap: e.target.value })} />
+              <Input className="h-7 text-xs" value={row.carNumber} onChange={e => update(row.carNumber, { carNumber: e.target.value })} />
+              <Input className="h-7 text-xs" value={row.driverName} onChange={e => update(row.carNumber, { driverName: e.target.value })} />
+              <Input className="h-7 text-xs" value={row.team} onChange={e => update(row.carNumber, { team: e.target.value })} />
+              <Input className="h-7 text-xs" type="number" value={row.lap} onChange={e => update(row.carNumber, { lap: +e.target.value })} />
+              <Input className="h-7 text-xs" type="number" value={row.pitStops ?? 0} onChange={e => update(row.carNumber, { pitStops: +e.target.value })} />
+              <Input className="h-7 text-xs font-mono" value={row.gap} onChange={e => update(row.carNumber, { gap: e.target.value })} />
+              <Input className="h-7 text-xs font-mono" value={row.lastLap} onChange={e => update(row.carNumber, { lastLap: e.target.value })} />
               <button
-                onClick={() => update(i, { isPurple: !row.isPurple })}
+                onClick={() => update(row.carNumber, { isPurple: !row.isPurple })}
                 className={`text-xs px-1 ${row.isPurple ? 'bg-purple-600 text-white' : 'bg-muted text-muted-foreground'}`}
                 title="Mejor vuelta de la sesión"
               >
                 ★
               </button>
-              <button onClick={() => remove(i)} className="text-rally-red hover:opacity-70 text-xs">✕</button>
+              <button onClick={() => remove(row.carNumber)} className="text-rally-red hover:opacity-70 text-xs">✕</button>
             </div>
           ))}
         </div>
@@ -154,7 +155,7 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
         <GraphicControl
           label="Tiempos en Vivo"
           graphicId={'circuitTiming' as any}
-          onTake={() => onTake('circuitTiming', { rows: timing, currentLap: event.currentLap, totalLaps: event.totalLaps, columns: getLiveCols(event.sessionType) })}
+          onTake={() => onTake('circuitTiming', { rows: filteredTiming, currentLap: event.currentLap, totalLaps: event.totalLaps, columns: getLiveCols(event.sessionType) })}
           onClear={() => onClear('circuitTiming')}
           isLive={liveGraphics.has('circuitTiming')}
         />

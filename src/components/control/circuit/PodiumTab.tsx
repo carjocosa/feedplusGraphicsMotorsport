@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useCircuitStore } from '@/store/circuitStore';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,11 +19,13 @@ const PodiumTab = ({ onTake, onClear, liveGraphics }: Props) => {
     ? { ...finalResults, results: finalResults.results.filter(r => entries.some(e => e.carNumber === r.carNumber && e.category === selectedCategory)) }
     : finalResults;
 
-  const updateFinal = (i: number, patch: Partial<FinalResultEntry>) => {
+  const updateFinal = useCallback((carNumber: string, patch: Partial<FinalResultEntry>) => {
+    const idx = finalResults.results.findIndex(r => r.carNumber === carNumber);
+    if (idx === -1) return;
     const next = [...finalResults.results];
-    next[i] = { ...next[i], ...patch };
+    next[idx] = { ...next[idx], ...patch };
     setFinalResults({ results: next });
-  };
+  }, [finalResults, setFinalResults]);
 
   const updatePodium = (pos: 1 | 2 | 3, patch: any) => {
     const next = podium.podium.map(p => p.position === pos ? { ...p, ...patch } : p);
@@ -76,7 +79,6 @@ const PodiumTab = ({ onTake, onClear, liveGraphics }: Props) => {
           <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Resultados finales</h3>
         </div>
 
-        {/* Category filter */}
         {categories.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Filtrar:</span>
@@ -112,16 +114,16 @@ const PodiumTab = ({ onTake, onClear, liveGraphics }: Props) => {
           <span>POS</span><span>Nº</span><span>Piloto</span><span>Equipo</span><span>Vts</span><span>Tiempo</span><span>Mejor</span><span>Estado</span>
         </div>
         <div className="max-h-[320px] overflow-y-auto space-y-1">
-          {filteredResults.results.map((r, i) => (
-            <div key={i} className="grid grid-cols-[40px_50px_1fr_1fr_60px_100px_90px_60px] gap-1 items-center text-xs">
-              <Input className="h-7 text-xs" value={r.position} onChange={e => updateFinal(i, { position: +e.target.value })} />
-              <Input className="h-7 text-xs" value={r.carNumber} onChange={e => updateFinal(i, { carNumber: e.target.value })} />
-              <Input className="h-7 text-xs" value={r.driverName} onChange={e => updateFinal(i, { driverName: e.target.value })} />
-              <Input className="h-7 text-xs" value={r.team} onChange={e => updateFinal(i, { team: e.target.value })} />
-              <Input className="h-7 text-xs" type="number" value={r.laps} onChange={e => updateFinal(i, { laps: +e.target.value })} />
-              <Input className="h-7 text-xs font-mono" value={r.totalTime} onChange={e => updateFinal(i, { totalTime: e.target.value })} />
-              <Input className="h-7 text-xs font-mono" value={r.bestLap} onChange={e => updateFinal(i, { bestLap: e.target.value })} />
-              <select value={r.status ?? 'finished'} onChange={e => updateFinal(i, { status: e.target.value as any })} className="h-7 text-[10px] border border-input bg-background">
+          {filteredResults.results.map((r) => (
+            <div key={r.carNumber} className="grid grid-cols-[40px_50px_1fr_1fr_60px_100px_90px_60px] gap-1 items-center text-xs">
+              <Input className="h-7 text-xs" value={r.position} onChange={e => updateFinal(r.carNumber, { position: +e.target.value })} />
+              <Input className="h-7 text-xs" value={r.carNumber} onChange={e => updateFinal(r.carNumber, { carNumber: e.target.value })} />
+              <Input className="h-7 text-xs" value={r.driverName} onChange={e => updateFinal(r.carNumber, { driverName: e.target.value })} />
+              <Input className="h-7 text-xs" value={r.team} onChange={e => updateFinal(r.carNumber, { team: e.target.value })} />
+              <Input className="h-7 text-xs" type="number" value={r.laps} onChange={e => updateFinal(r.carNumber, { laps: +e.target.value })} />
+              <Input className="h-7 text-xs font-mono" value={r.totalTime} onChange={e => updateFinal(r.carNumber, { totalTime: e.target.value })} />
+              <Input className="h-7 text-xs font-mono" value={r.bestLap} onChange={e => updateFinal(r.carNumber, { bestLap: e.target.value })} />
+              <select value={r.status ?? 'finished'} onChange={e => updateFinal(r.carNumber, { status: e.target.value as any })} className="h-7 text-[10px] border border-input bg-background">
                 <option value="finished">FIN</option>
                 <option value="dnf">DNF</option>
                 <option value="dsq">DSQ</option>
