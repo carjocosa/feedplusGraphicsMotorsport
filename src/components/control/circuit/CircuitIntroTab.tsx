@@ -78,7 +78,7 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
     <div className="space-y-4">
       <GraphicControl
         label="Intro Circuito"
-        graphic="circuitIntro"
+        graphicId="circuitIntro"
         onTake={handleTake}
         onClear={() => onClear('circuitIntro')}
         isLive={liveGraphics.has('circuitIntro')}
