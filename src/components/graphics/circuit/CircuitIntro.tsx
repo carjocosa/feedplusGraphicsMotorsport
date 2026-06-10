@@ -18,98 +18,138 @@ const CircuitIntro = ({ data, settings }: Props) => {
       background: '#0a0a0a',
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
       overflow: 'hidden',
       fontFamily: font,
     }}>
-      {data.imageUrl && (
+      {data.videoUrl ? (
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+          src={data.videoUrl}
+        />
+      ) : data.imageUrl ? (
         <div style={{
           position: 'absolute',
           inset: 0,
           backgroundImage: `url(${data.imageUrl})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.25,
         }} />
-      )}
+      ) : null}
+
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'linear-gradient(180deg, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.5) 40%, rgba(10,10,10,0.7) 70%, rgba(10,10,10,0.95) 100%)',
+      }} />
+
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 4,
+        background: s.accentColor,
+      }} />
+
+      <div style={{
+        position: 'relative',
+        zIndex: 1,
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: `0 ${scaled(settings, 80)}px`,
+      }}>
+        <div style={{
+          fontSize: scaled(settings, 16),
+          fontWeight: 700,
+          color: s.accentColor,
+          letterSpacing: '0.35em',
+          textTransform: 'uppercase',
+          marginBottom: scaled(settings, 8),
+        }}>
+          {data.series}
+        </div>
+
+        {data.round && (
+          <div style={{
+            fontSize: scaled(settings, 22),
+            fontWeight: 500,
+            color: s.textColor,
+            opacity: 0.5,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            marginBottom: scaled(settings, 20),
+          }}>
+            {data.round}
+          </div>
+        )}
+
+        <div style={{
+          width: scaled(settings, 80),
+          height: 3,
+          background: s.accentColor,
+          marginBottom: scaled(settings, 32),
+        }} />
+
+        <div style={{
+          fontSize: scaled(settings, 96),
+          fontWeight: 800,
+          color: s.textColor,
+          lineHeight: 0.92,
+          textTransform: 'uppercase',
+          letterSpacing: '-0.02em',
+          maxWidth: '80%',
+        }}>
+          {data.eventName || data.circuit}
+        </div>
+
+        {data.circuit && data.eventName && (
+          <div style={{
+            fontSize: scaled(settings, 32),
+            fontWeight: 400,
+            color: s.textColor,
+            opacity: 0.4,
+            marginTop: scaled(settings, 16),
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+          }}>
+            {data.circuit}
+          </div>
+        )}
+      </div>
 
       <div style={{
         position: 'relative',
         zIndex: 1,
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
-        gap: scaled(settings, 12),
-        textAlign: 'center',
-        padding: scaled(settings, 48),
-        maxWidth: '80%',
+        gap: scaled(settings, 40),
+        padding: `${scaled(settings, 24)}px ${scaled(settings, 80)}px`,
+        borderTop: `1px solid ${s.textColor}15`,
       }}>
-        <span style={{
-          fontSize: scaled(settings, 18),
-          fontWeight: 600,
-          color: s.accentColor,
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-        }}>
-          {data.series}
-        </span>
-
-        <span style={{
-          fontSize: scaled(settings, 72),
-          fontWeight: 700,
-          color: s.textColor,
-          lineHeight: 1,
-          textTransform: 'uppercase',
-        }}>
-          {data.eventName || data.circuit}
-        </span>
-
-        {data.round && (
-          <span style={{
-            fontSize: scaled(settings, 36),
-            fontWeight: 600,
+        {[data.place, data.date, data.session].filter(Boolean).map((item, i) => (
+          <div key={i} style={{
+            fontSize: scaled(settings, 16),
+            fontWeight: 500,
             color: s.textColor,
-            opacity: 0.7,
+            opacity: 0.5,
+            letterSpacing: '0.15em',
             textTransform: 'uppercase',
           }}>
-            {data.round}
-          </span>
-        )}
-
-        <div style={{
-          display: 'flex',
-          gap: scaled(settings, 32),
-          marginTop: scaled(settings, 16),
-        }}>
-          {data.place && (
-            <span style={{
-              fontSize: scaled(settings, 22),
-              color: s.textColor,
-              opacity: 0.5,
-            }}>
-              {data.place}
-            </span>
-          )}
-          {data.date && (
-            <span style={{
-              fontSize: scaled(settings, 22),
-              color: s.textColor,
-              opacity: 0.5,
-            }}>
-              {data.date}
-            </span>
-          )}
-          {data.session && (
-            <span style={{
-              fontSize: scaled(settings, 22),
-          color: s.accentColor,
-              opacity: 0.7,
-            }}>
-              {data.session}
-            </span>
-          )}
-        </div>
+            {item}
+          </div>
+        ))}
       </div>
     </div>
   );

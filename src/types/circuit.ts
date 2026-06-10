@@ -151,6 +151,8 @@ export interface CircuitIntroData {
   date?: string;
   session?: string;
   imageUrl?: string;
+  videoUrl?: string;
+  logoUrl?: string;
 }
 
 export interface CircuitEventData {

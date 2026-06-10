@@ -35,17 +35,17 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const [date, setDate] = useState('');
   const [session, setSession] = useState(SESSION_LABELS[storeEvent.sessionType] || '');
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+  const imgRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast({ title: 'Image too large', description: 'Max 2MB' });
+  const readFile = (file: File, setter: (url: string) => void, maxMB: number) => {
+    if (file.size > maxMB * 1024 * 1024) {
+      toast({ title: 'File too large', description: `Max ${maxMB}MB` });
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => setImageUrl(reader.result as string);
+    reader.onload = () => setter(reader.result as string);
     reader.readAsDataURL(file);
   };
 
@@ -59,6 +59,7 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
       date,
       session,
       imageUrl,
+      videoUrl,
     };
     onTake('circuitIntro', data);
   };
@@ -112,17 +113,17 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
           </div>
 
           <div>
-            <Label>Circuit image (background)</Label>
+            <Label>Background image</Label>
             <input
-              ref={fileRef}
+              ref={imgRef}
               type="file"
               accept="image/*"
-              onChange={handleImage}
+              onChange={e => { const f = e.target.files?.[0]; if (f) readFile(f, setImageUrl, 5); }}
               style={{ display: 'none' }}
             />
             <div className="flex gap-2 mt-1">
-              <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-                {imageUrl ? 'Change image' : 'Upload image'}
+              <Button variant="outline" size="sm" onClick={() => imgRef.current?.click()}>
+                {imageUrl ? 'Change' : 'Upload image'}
               </Button>
               {imageUrl && (
                 <Button variant="outline" size="sm" onClick={() => setImageUrl(undefined)}>
@@ -133,14 +134,39 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
             {imageUrl && (
               <img
                 src={imageUrl}
-                alt="Circuit preview"
-                style={{
-                  width: '100%',
-                  maxHeight: 120,
-                  objectFit: 'cover',
-                  borderRadius: 4,
-                  marginTop: 6,
-                }}
+                alt="preview"
+                style={{ width: '100%', maxHeight: 80, objectFit: 'cover', borderRadius: 4, marginTop: 4 }}
+              />
+            )}
+          </div>
+
+          <div>
+            <Label>Background video (loop)</Label>
+            <input
+              ref={videoRef}
+              type="file"
+              accept="video/*"
+              onChange={e => { const f = e.target.files?.[0]; if (f) readFile(f, setVideoUrl, 50); }}
+              style={{ display: 'none' }}
+            />
+            <div className="flex gap-2 mt-1">
+              <Button variant="outline" size="sm" onClick={() => videoRef.current?.click()}>
+                {videoUrl ? 'Change' : 'Upload video'}
+              </Button>
+              {videoUrl && (
+                <Button variant="outline" size="sm" onClick={() => setVideoUrl(undefined)}>
+                  Remove
+                </Button>
+              )}
+            </div>
+            {videoUrl && (
+              <video
+                src={videoUrl}
+                muted
+                autoPlay
+                loop
+                playsInline
+                style={{ width: '100%', maxHeight: 80, objectFit: 'cover', borderRadius: 4, marginTop: 4 }}
               />
             )}
           </div>
