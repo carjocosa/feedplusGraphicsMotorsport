@@ -14,9 +14,9 @@ ALTER TABLE room_data REPLICA IDENTITY FULL;
 
 ALTER TABLE room_data ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "anon_select" ON room_data FOR SELECT USING (true);
-CREATE POLICY "anon_insert" ON room_data FOR INSERT WITH CHECK (true);
-CREATE POLICY "anon_update" ON room_data FOR UPDATE USING (true);
+CREATE POLICY IF NOT EXISTS "anon_select" ON room_data FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "anon_insert" ON room_data FOR INSERT WITH CHECK (true);
+CREATE POLICY IF NOT EXISTS "anon_update" ON room_data FOR UPDATE USING (true);
 
 ALTER PUBLICATION supabase_realtime ADD TABLE room_data;
 
