@@ -332,7 +332,7 @@ const Control = () => {
 
           <TabsContent value="import"><ImportTab /></TabsContent>
           <TabsContent value="entries">{mode === 'rally' ? <EntriesTab /> : <CircuitEntriesTab />}</TabsContent>
-          <TabsContent value="intro"><IntroTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
+          <TabsContent value="intro">{mode === 'rally' ? <IntroTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /> : <CircuitIntroTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} />}</TabsContent>
           <TabsContent value="crews"><CrewTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="timing"><TimingTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} sendBroadcast={send} /></TabsContent>
           <TabsContent value="branding"><BrandingTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
@@ -340,7 +340,6 @@ const Control = () => {
           <TabsContent value="settings"><SettingsTab sendBroadcast={send} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="guide"><GuideTab /></TabsContent>
 
-          <TabsContent value="intro"><CircuitIntroTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="grid"><GridTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="laps"><LapsTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="flags"><FlagsTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
