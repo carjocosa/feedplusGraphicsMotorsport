@@ -172,6 +172,7 @@ const CIRCUIT_GRAPHICS: { id: TransformableGraphic; label: string }[] = [
   { id: 'finalResults', label: 'Final Results' },
   { id: 'guestLowerThird', label: 'Invitado LT' },
   { id: 'circuitIntro', label: 'Circuit Intro' },
+  { id: 'logoBug', label: 'Logo Bug' },
 ];
 
 const PREVIEW_W = 640; // visual preview width in CSS px

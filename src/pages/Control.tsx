@@ -27,7 +27,7 @@ import { useThemeStore } from '@/store/themeStore';
 import Footer from '@/components/ui/Footer';
 
 const RALLY_GRAPHICS: GraphicType[] = ['crewLowerThird', 'stageLowerThird', 'interviewLowerThird', 'stageResults', 'overallStandings', 'headToHead', 'startList', 'stageMap', 'elevationProfile', 'weather', 'scorebug', 'sponsorCrawl', 'countdown', 'rallyIntro', 'stagePresentation', 'stageWeather'];
-const CIRCUIT_GRAPHICS: string[] = ['startGrid', 'circuitTiming', 'driverLap', 'raceFlag', 'pitTracker', 'podium', 'finalResults', 'circuitScorebug', 'guestLowerThird', 'circuitIntro'];
+const CIRCUIT_GRAPHICS: string[] = ['startGrid', 'circuitTiming', 'driverLap', 'raceFlag', 'pitTracker', 'podium', 'finalResults', 'circuitScorebug', 'guestLowerThird', 'circuitIntro', 'logoBug'];
 
 const CONFLICT_GROUPS: string[][] = [
   ['scorebug', 'circuitScorebug', 'weather', 'stageResults', 'overallStandings', 'startList', 'startGrid', 'pitTracker', 'finalResults', 'raceFlag'],

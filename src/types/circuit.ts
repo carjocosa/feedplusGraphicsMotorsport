@@ -142,6 +142,12 @@ export interface FinalResultsData {
 
 export type SessionKind = 'practice' | 'qualifying' | 'race' | 'sprint' | 'feature';
 
+export interface LogoBugData {
+  logoUrl?: string;
+  secondaryLogoUrl?: string;
+  sponsorUrl?: string;
+}
+
 export interface CircuitIntroData {
   eventName: string;
   series: string;
@@ -176,4 +182,5 @@ export type CircuitGraphicType =
   | 'podium'
   | 'finalResults'
   | 'circuitScorebug'
-  | 'circuitIntro';
+  | 'circuitIntro'
+  | 'logoBug';

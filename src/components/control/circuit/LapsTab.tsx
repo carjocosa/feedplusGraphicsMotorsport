@@ -5,7 +5,8 @@ import { Label } from '@/components/ui/label';
 import GraphicControl from '@/components/control/GraphicControl';
 import CircuitEntryPicker from './CircuitEntryPicker';
 import TimingSyncPanel from './TimingSyncPanel';
-import type { CircuitTimingEntry, GuestLowerThirdData } from '@/types/circuit';
+import LogoBugControl from './LogoBugControl';
+import type { CircuitTimingEntry, GuestLowerThirdData, LogoBugData } from '@/types/circuit';
 import { ALL_COLS, getLiveCols, setLiveCols, getColumnWidth, setColumnWidth } from '@/lib/liveTimingColumns';
 import type { LiveCol } from '@/components/graphics/circuit/CircuitLiveTiming';
 
@@ -293,6 +294,8 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
           isLive={liveGraphics.has('circuitScorebug')}
         />
       </div>
+
+      <LogoBugControl onTake={onTake} onClear={onClear} liveGraphics={liveGraphics} />
 
       <div className="p-4 border border-border bg-card space-y-3">
         <h3 className="text-sm font-bold tracking-wider text-primary uppercase">Piloto (lower third)</h3>
