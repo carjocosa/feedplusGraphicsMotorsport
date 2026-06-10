@@ -129,6 +129,36 @@ const CircuitIntro = ({ data, settings }: Props) => {
         )}
       </div>
 
+      {data.trackMapUrl && (
+        <div style={{
+          position: 'absolute',
+          right: scaled(settings, 60),
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 2,
+          width: scaled(settings, 320),
+          height: scaled(settings, 320),
+          borderRadius: 12,
+          overflow: 'hidden',
+          border: `2px solid ${s.textColor}15`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(0,0,0,0.5)',
+          padding: scaled(settings, 16),
+        }}>
+          <img
+            src={data.trackMapUrl}
+            alt="trazado"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+            }}
+          />
+        </div>
+      )}
+
       <div style={{
         position: 'relative',
         zIndex: 1,

@@ -153,6 +153,7 @@ export interface CircuitIntroData {
   imageUrl?: string;
   videoUrl?: string;
   logoUrl?: string;
+  trackMapUrl?: string;
 }
 
 export interface CircuitEventData {

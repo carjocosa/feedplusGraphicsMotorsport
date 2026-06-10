@@ -36,8 +36,10 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const [session, setSession] = useState(SESSION_LABELS[storeEvent.sessionType] || '');
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+  const [trackMapUrl, setTrackMapUrl] = useState<string | undefined>(undefined);
   const imgRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
+  const mapRef = useRef<HTMLInputElement>(null);
 
   const readFile = (file: File, setter: (url: string) => void, maxMB: number) => {
     if (file.size > maxMB * 1024 * 1024) {
@@ -60,6 +62,7 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
       session,
       imageUrl,
       videoUrl,
+      trackMapUrl,
     };
     onTake('circuitIntro', data);
   };
@@ -130,6 +133,31 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
                 <Input value={date} onChange={e => setDate(e.target.value)} placeholder="15-16 Jun 2026" />
               </div>
             </div>
+          </div>
+
+          {/* TRAZADO */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+              Trazado del circuito {trackMapUrl && <span className="text-green-500 ml-1">✓</span>}
+            </h4>
+            <p className="text-[10px] text-slate-500 mb-2">Imagen del trazado/pista que se muestra destacada en la intro.</p>
+            <input
+              ref={mapRef}
+              type="file"
+              accept="image/*"
+              onChange={e => { const f = e.target.files?.[0]; if (f) readFile(f, setTrackMapUrl, 5); }}
+              style={{ display: 'none' }}
+            />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => mapRef.current?.click()}>
+                {trackMapUrl ? 'Cambiar trazado' : 'Subir trazado'}
+              </Button>
+              {trackMapUrl && <Button variant="ghost" size="sm" onClick={() => setTrackMapUrl(undefined)}>Quitar</Button>}
+            </div>
+            {trackMapUrl && (
+              <img src={trackMapUrl} alt="trazado"
+                style={{ width: '100%', maxHeight: 80, objectFit: 'contain', borderRadius: 4, marginTop: 4 }} />
+            )}
           </div>
 
           {/* BACKGROUND */}
