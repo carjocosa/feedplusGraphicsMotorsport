@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { GraphicsSettings } from '@/types/rally';
 import type { CircuitEventData } from '@/types/circuit';
@@ -17,24 +18,39 @@ const SESSION_LABELS: Record<string, string> = {
   feature: 'FEATURE',
 };
 
+const fmt = (ms: number) => {
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+};
+
 const CircuitScorebug = ({ data, settings, onMouseDown }: Props) => {
   const dur = animationDuration(settings);
   const skew = settings.shearAngle;
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!data.raceTimeRunning || !data.raceTimeStart) return;
+    const base = data.raceTimeElapsed ?? 0;
+    const tick = () => setElapsed(base + (Date.now() - (data.raceTimeStart ?? Date.now())));
+    tick();
+    const id = setInterval(tick, 100);
+    return () => clearInterval(id);
+  }, [data.raceTimeRunning, data.raceTimeStart, data.raceTimeElapsed]);
 
   return (
     <div style={layoutStyle(settings, 'circuitScorebug')} onMouseDown={onMouseDown}>
       <motion.div
-        style={{
-          fontFamily: fontStack(settings),
-          opacity: settings.panelOpacity,
-        }}
+        style={{ fontFamily: fontStack(settings), opacity: settings.panelOpacity }}
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: settings.panelOpacity }}
         exit={{ y: -50, opacity: 0 }}
         transition={{ duration: dur }}
       >
       <div className="flex items-stretch">
-        {/* Series badge */}
         <div
           className="flex flex-col justify-center px-5"
           style={{
@@ -56,7 +72,6 @@ const CircuitScorebug = ({ data, settings, onMouseDown }: Props) => {
           </span>
         </div>
 
-        {/* Circuit */}
         <div
           className="flex flex-col justify-center px-5 -ml-2"
           style={{
@@ -80,34 +95,62 @@ const CircuitScorebug = ({ data, settings, onMouseDown }: Props) => {
           </div>
         </div>
 
-        {/* Lap counter */}
-        {(data.showLap !== false) && (
-        <div
-          className="flex items-center justify-center px-6 -ml-2"
-          style={{
-            background: settings.secondaryColor,
-            color: settings.textColor,
-            height: scaled(settings, 60),
-            transform: `skewX(-${skew}deg)`,
-            marginLeft: -skew,
-            border: `2px solid ${settings.accentColor}`,
-          }}
-        >
-          <div style={{ transform: `skewX(${skew}deg)` }} className="text-center">
-            <div
-              className="text-[10px] uppercase tracking-widest font-bold"
-              style={{ color: withOpacity(settings.textColor, 0.6) }}
-            >
-              VUELTA
-            </div>
-            <div
-              className="font-bold tabular-nums"
-              style={{ color: settings.accentColor, fontSize: scaled(settings, 22), lineHeight: 1 }}
-            >
-              {data.currentLap}/{data.totalLaps}
+        {(data.showRaceTime && data.raceTimeRunning !== undefined) && (
+          <div
+            className="flex items-center justify-center px-5 -ml-2"
+            style={{
+              background: settings.secondaryColor,
+              color: settings.textColor,
+              height: scaled(settings, 60),
+              transform: `skewX(-${skew}deg)`,
+              marginLeft: -skew,
+              border: `2px solid ${withOpacity(settings.accentColor, 0.3)}`,
+            }}
+          >
+            <div style={{ transform: `skewX(${skew}deg)` }} className="text-center">
+              <div
+                className="text-[10px] uppercase tracking-widest font-bold"
+                style={{ color: withOpacity(settings.textColor, 0.6) }}
+              >
+                TIEMPO
+              </div>
+              <div
+                className="font-bold tabular-nums"
+                style={{ color: settings.accentColor, fontSize: scaled(settings, 20), lineHeight: 1 }}
+              >
+                {fmt(elapsed)}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {(data.showLap !== false) && (
+          <div
+            className="flex items-center justify-center px-6 -ml-2"
+            style={{
+              background: settings.secondaryColor,
+              color: settings.textColor,
+              height: scaled(settings, 60),
+              transform: `skewX(-${skew}deg)`,
+              marginLeft: -skew,
+              border: `2px solid ${settings.accentColor}`,
+            }}
+          >
+            <div style={{ transform: `skewX(${skew}deg)` }} className="text-center">
+              <div
+                className="text-[10px] uppercase tracking-widest font-bold"
+                style={{ color: withOpacity(settings.textColor, 0.6) }}
+              >
+                VUELTA
+              </div>
+              <div
+                className="font-bold tabular-nums"
+                style={{ color: settings.accentColor, fontSize: scaled(settings, 22), lineHeight: 1 }}
+              >
+                {data.currentLap}/{data.totalLaps}
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </motion.div>

@@ -286,8 +286,43 @@ const LapsTab = ({ onTake, onClear, liveGraphics }: Props) => {
             Mostrar vueltas
           </label>
         </div>
+        <div className="border-t border-border pt-3 mt-3 space-y-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Reloj de carrera</h4>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant={event.raceTimeRunning ? 'outline' : 'default'}
+              onClick={() => setEvent({ raceTimeRunning: true, raceTimeStart: Date.now(), raceTimeElapsed: event.raceTimeElapsed ?? 0, showRaceTime: true })}
+              disabled={event.raceTimeRunning}
+            >
+              ▶ Iniciar
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const elapsed = event.raceTimeStart ? (event.raceTimeElapsed ?? 0) + (Date.now() - event.raceTimeStart) : (event.raceTimeElapsed ?? 0);
+                setEvent({ raceTimeRunning: false, raceTimeElapsed: elapsed });
+              }}
+              disabled={!event.raceTimeRunning}
+            >
+              ⏸ Pausar
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setEvent({ raceTimeRunning: false, raceTimeStart: undefined, raceTimeElapsed: 0, showRaceTime: false })}
+            >
+              ⏹ Reiniciar
+            </Button>
+          </div>
+          <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors select-none">
+            <input type="checkbox" checked={event.showRaceTime ?? false} onChange={e => setEvent({ showRaceTime: e.target.checked })} className="accent-primary" />
+            Mostrar reloj en scorebug
+          </label>
+        </div>
         <GraphicControl
-          label="Scorebug (serie / circuito / vuelta)"
+          label="Scorebug (serie / circuito / vuelta / reloj)"
           graphicId={'circuitScorebug' as any}
           onTake={() => onTake('circuitScorebug', { ...event, showLap: event.showLap !== false })}
           onClear={() => onClear('circuitScorebug')}

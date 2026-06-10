@@ -171,6 +171,10 @@ export interface CircuitEventData {
   totalLaps: number;
   currentLap: number;
   showLap?: boolean;
+  showRaceTime?: boolean;
+  raceTimeRunning?: boolean;
+  raceTimeStart?: number;
+  raceTimeElapsed?: number;
 }
 
 export type CircuitGraphicType =
