@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import GraphicControl from '../GraphicControl';
+import { useCircuitStore } from '@/store/circuitStore';
 import type { TransformableGraphic } from '@/types/rally';
 import type { CircuitIntroData } from '@/types/circuit';
 import { useToast } from '@/hooks/use-toast';
@@ -13,15 +14,26 @@ interface Props {
   liveGraphics: Set<string>;
 }
 
+const SESSION_LABELS: Record<string, string> = {
+  practice: 'Práctica',
+  qualifying: 'Clasificación',
+  race: 'Carrera',
+  sprint: 'Sprint',
+  feature: 'Feature',
+};
+
 const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const { toast } = useToast();
-  const [eventName, setEventName] = useState('');
-  const [series, setSeries] = useState('');
-  const [round, setRound] = useState('');
-  const [circuit, setCircuit] = useState('');
+  const storeEvent = useCircuitStore(s => s.event);
+  const setEvent = useCircuitStore(s => s.setEvent);
+
+  const [eventName, setEventName] = useState(storeEvent.circuit || '');
+  const [series, setSeries] = useState(storeEvent.series || '');
+  const [round, setRound] = useState(storeEvent.round || '');
+  const [circuit, setCircuit] = useState(storeEvent.circuit || '');
   const [place, setPlace] = useState('');
   const [date, setDate] = useState('');
-  const [session, setSession] = useState('');
+  const [session, setSession] = useState(SESSION_LABELS[storeEvent.sessionType] || '');
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -51,6 +63,11 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
     onTake('circuitIntro', data);
   };
 
+  const onChangeSeries = (v: string) => { setSeries(v); setEvent({ series: v }); };
+  const onChangeRound = (v: string) => { setRound(v); setEvent({ round: v }); };
+  const onChangeCircuit = (v: string) => { setCircuit(v); setEvent({ circuit: v }); };
+  const onChangeSession = (v: string) => { setSession(v); }; // session is intro-specific, not in store
+
   return (
     <div className="space-y-4">
       <GraphicControl
@@ -67,16 +84,16 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
           </div>
           <div>
             <Label>Series</Label>
-            <Input value={series} onChange={e => setSeries(e.target.value)} placeholder="Karting Nacional" />
+            <Input value={series} onChange={e => onChangeSeries(e.target.value)} placeholder="Karting Nacional" />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label>Round</Label>
-              <Input value={round} onChange={e => setRound(e.target.value)} placeholder="Fecha 4" />
+              <Input value={round} onChange={e => onChangeRound(e.target.value)} placeholder="Fecha 4" />
             </div>
             <div>
               <Label>Circuit</Label>
-              <Input value={circuit} onChange={e => setCircuit(e.target.value)} placeholder="Zárate Karting" />
+              <Input value={circuit} onChange={e => onChangeCircuit(e.target.value)} placeholder="Zárate Karting" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -91,7 +108,7 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
           </div>
           <div>
             <Label>Session</Label>
-            <Input value={session} onChange={e => setSession(e.target.value)} placeholder="Carrera Final" />
+            <Input value={session} onChange={e => onChangeSession(e.target.value)} placeholder="Carrera Final" />
           </div>
 
           <div>
