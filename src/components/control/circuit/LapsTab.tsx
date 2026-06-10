@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useCircuitStore } from '@/store/circuitStore';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import GraphicControl from '@/components/control/GraphicControl';
 import CircuitEntryPicker from './CircuitEntryPicker';
 import TimingSyncPanel from './TimingSyncPanel';
