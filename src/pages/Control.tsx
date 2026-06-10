@@ -186,7 +186,6 @@ const Control = () => {
         { value: 'pits', label: 'Pits' },
         { value: 'podium', label: 'Podio' },
         { value: 'settings', label: 'Style Editor' },
-        { value: 'guide', label: 'Guía' },
       ];
 
   const accent = settings.accentColor || '#FF6B00';
