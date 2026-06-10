@@ -154,6 +154,7 @@ export interface CircuitIntroData {
   videoUrl?: string;
   logoUrl?: string;
   trackMapUrl?: string;
+  animated?: boolean;
 }
 
 export interface CircuitEventData {

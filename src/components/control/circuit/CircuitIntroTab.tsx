@@ -37,6 +37,7 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
   const [trackMapUrl, setTrackMapUrl] = useState<string | undefined>(undefined);
+  const [animated, setAnimated] = useState(false);
   const imgRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
   const mapRef = useRef<HTMLInputElement>(null);
@@ -63,6 +64,7 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
       imageUrl,
       videoUrl,
       trackMapUrl,
+      animated,
     };
     onTake('circuitIntro', data);
   };
@@ -133,6 +135,23 @@ const CircuitIntroTab = ({ onTake, onClear, liveGraphics }: Props) => {
                 <Input value={date} onChange={e => setDate(e.target.value)} placeholder="15-16 Jun 2026" />
               </div>
             </div>
+          </div>
+
+          {/* MODO */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Modo</h4>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={animated}
+                onChange={e => setAnimated(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm">Pantalla de espera animada</span>
+            </label>
+            <p className="text-[10px] text-slate-500 mt-1">
+              Los textos aparecen uno a uno con fade/desplazamiento y el fondo respira lentamente. Ideal para entre carreras o previas.
+            </p>
           </div>
 
           {/* TRAZADO */}
