@@ -142,6 +142,17 @@ export interface FinalResultsData {
 
 export type SessionKind = 'practice' | 'qualifying' | 'race' | 'sprint' | 'feature';
 
+export interface CircuitIntroData {
+  eventName: string;
+  series: string;
+  round: string;
+  circuit: string;
+  place?: string;
+  date?: string;
+  session?: string;
+  imageUrl?: string;
+}
+
 export interface CircuitEventData {
   series: string;            // "Karting Nacional"
   round: string;             // "Fecha 4"
@@ -160,4 +171,5 @@ export type CircuitGraphicType =
   | 'pitTracker'
   | 'podium'
   | 'finalResults'
-  | 'circuitScorebug';
+  | 'circuitScorebug'
+  | 'circuitIntro';

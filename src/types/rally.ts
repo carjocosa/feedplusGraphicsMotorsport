@@ -155,7 +155,8 @@ export type TransformableGraphic =
   | 'pitTracker'
   | 'podium'
   | 'finalResults'
-  | 'guestLowerThird';
+  | 'guestLowerThird'
+  | 'circuitIntro';
 
 export interface GraphicTransform {
   x: number;

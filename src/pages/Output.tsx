@@ -31,6 +31,7 @@ import Podium from '@/components/graphics/circuit/Podium';
 import FinalResults from '@/components/graphics/circuit/FinalResults';
 import CircuitScorebug from '@/components/graphics/circuit/CircuitScorebug';
 import GuestLowerThird from '@/components/graphics/circuit/GuestLowerThird';
+import CircuitIntro from '@/components/graphics/circuit/CircuitIntro';
 
 const defaultSettings: GraphicsSettings = {
   primaryColor: '#1A1A1E',
@@ -173,6 +174,7 @@ const Output = () => {
         )}
         {activeGraphics.driverLap && <DriverLapLowerThird key="driverLap" data={activeGraphics.driverLap} settings={settings} />}
         {activeGraphics.guestLowerThird && <GuestLowerThird key="guestLowerThird" data={activeGraphics.guestLowerThird as any} settings={settings} />}
+        {activeGraphics.circuitIntro && <CircuitIntro key="circuitIntro" data={activeGraphics.circuitIntro as any} settings={settings} />}
         {activeGraphics.raceFlag && <RaceFlag key="raceFlag" data={activeGraphics.raceFlag} settings={settings} />}
         {activeGraphics.pitTracker && <PitTracker key="pitTracker" data={activeGraphics.pitTracker} settings={settings} />}
         {activeGraphics.podium && <Podium key="podium" data={activeGraphics.podium} settings={settings} />}

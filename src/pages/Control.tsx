@@ -17,6 +17,7 @@ import LapsTab from '@/components/control/circuit/LapsTab';
 import FlagsTab from '@/components/control/circuit/FlagsTab';
 import PitsTab from '@/components/control/circuit/PitsTab';
 import PodiumTab from '@/components/control/circuit/PodiumTab';
+import CircuitIntroTab from '@/components/control/circuit/CircuitIntroTab';
 import GuideTab from '@/components/control/GuideTab';
 import FeedLogo from '@/components/ui/FeedLogo';
 import { useRallyStore } from '@/store/rallyStore';
@@ -26,11 +27,11 @@ import { useThemeStore } from '@/store/themeStore';
 import Footer from '@/components/ui/Footer';
 
 const RALLY_GRAPHICS: GraphicType[] = ['crewLowerThird', 'stageLowerThird', 'interviewLowerThird', 'stageResults', 'overallStandings', 'headToHead', 'startList', 'stageMap', 'elevationProfile', 'weather', 'scorebug', 'sponsorCrawl', 'countdown', 'rallyIntro', 'stagePresentation', 'stageWeather'];
-const CIRCUIT_GRAPHICS: string[] = ['startGrid', 'circuitTiming', 'driverLap', 'raceFlag', 'pitTracker', 'podium', 'finalResults', 'circuitScorebug', 'guestLowerThird'];
+const CIRCUIT_GRAPHICS: string[] = ['startGrid', 'circuitTiming', 'driverLap', 'raceFlag', 'pitTracker', 'podium', 'finalResults', 'circuitScorebug', 'guestLowerThird', 'circuitIntro'];
 
 const CONFLICT_GROUPS: string[][] = [
   ['scorebug', 'circuitScorebug', 'weather', 'stageResults', 'overallStandings', 'startList', 'startGrid', 'pitTracker', 'finalResults', 'raceFlag'],
-  ['rallyIntro', 'stagePresentation', 'stageWeather', 'podium'],
+  ['rallyIntro', 'stagePresentation', 'stageWeather', 'podium', 'circuitIntro'],
   ['headToHead', 'countdown'],
 ];
 
@@ -39,7 +40,7 @@ function getConflictGroup(id: string): string[] | null {
 }
 
 function isFullscreenGraphic(id: string): boolean {
-  return ['rallyIntro', 'stagePresentation', 'stageWeather', 'podium'].includes(id);
+  return ['rallyIntro', 'stagePresentation', 'stageWeather', 'podium', 'circuitIntro'].includes(id);
 }
 
 const CrossIcon = () => (
@@ -178,6 +179,7 @@ const Control = () => {
       ]
     : [
         { value: 'entries', label: 'Pilotos' },
+        { value: 'intro', label: 'Intro Circuito' },
         { value: 'grid', label: 'Parrilla' },
         { value: 'laps', label: 'Vueltas / Live' },
         { value: 'flags', label: 'Banderas' },
@@ -339,6 +341,7 @@ const Control = () => {
           <TabsContent value="settings"><SettingsTab sendBroadcast={send} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="guide"><GuideTab /></TabsContent>
 
+          <TabsContent value="intro"><CircuitIntroTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="grid"><GridTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="laps"><LapsTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
           <TabsContent value="flags"><FlagsTab onTake={handleTake} onClear={handleClear} liveGraphics={liveGraphics} /></TabsContent>
